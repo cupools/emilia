@@ -10,22 +10,20 @@ import _ from './utils/util';
 const urlReg = /(?:url\(['"]?([\w\W]+?)(?:\?(__)?([\w\W]+?))?['"]?\))/;
 const declFilter = /(-webkit-)?background-(size|repeat)/;
 
-class Task {
+class Emilia {
     constructor(options) {
         this.options = Object.assign({
             src: ['*.css'],
             dest: './',
             output: './components/images/',
-            cssPath: '../../components/images/',
+            cssPath: '../components/images/',
             prefix: 'sprite-',
             algorithm: 'binary-tree',
             padding: 10,
-            sizeLimit: 5 * 1024
+            sizeLimit: 5 * 1024,
+            unit: 'px',
+            convert: 1
         }, options);
-
-        this.storage = {
-            spritesMap: {}
-        };
 
         this.File = File;
     }
@@ -60,39 +58,24 @@ class Task {
     }
 
     _walkDecls(file, css) {
-        let sprites = this.storage.spritesMap;
-
         css.walkDecls(decl => {
-            if(decl.prop.indexOf('background') !== -1 && decl.value.indexOf('?__') !== -1) {
-                let val = decl.value;
-                let group = urlReg.exec(val);
+            if(decl.prop.indexOf('background') !== -1) {
+                let group = urlReg.exec(decl.value);
 
                 if(group && group[2]) {
                     let url = group[1];
                     let tag = group[3];
 
-                    if(!sprites[tag]) {
-                        sprites[tag] = [];
-                    }
-
                     let realpath = this._getImageRealpath(url, file.realpath);
-                    sprites[tag].push(realpath);
+                    sprite.add(realpath, tag);
                 }
             }
         });
     }
 
     _initImage() {
-        let spritesMap = this.storage.spritesMap;
-        let keys = Object.keys(spritesMap);
-
-        keys.map(tag => {
-            let images = _.uniq(spritesMap[tag]);
-
-            images.map(realpath => {
-                this.initImage(realpath);
-            });
-        });
+        let map = sprite.get();
+        _.forIn(map, val => _.uniq(val).map(this.initImage));
     }
 
     initImage(realpath) {
@@ -104,45 +87,38 @@ class Task {
     }
 
     _buildSprite() {
-        let spritesMap = this.storage.spritesMap;
-        let keys = Object.keys(spritesMap);
         let opt = this.options;
 
-        keys.map(tag => {
-            let ret = sprite.processSprite({
-                tag,
-                sprites: spritesMap[tag],
-                options: opt
-            });
-
-            let path = _.joinPath(opt.output, tag + '.png');
-            let content = new Buffer(ret.image);
+        sprite.build(opt, sp => {
+            let path = _.joinPath(opt.output, opt.prefix + sp.tag + '.png');
+            let content = new Buffer(sp.image);
 
             File.wrap({
                 path,
                 content,
-                id: tag,
+                id: sp.tag,
                 type: 'SPRITE',
                 meta: {
-                    width: ret.properties.width,
-                    height: ret.properties.height,
-                    coordinates: ret.coordinates
+                    width: sp.properties.width,
+                    height: sp.properties.height,
+                    coordinates: sp.coordinates
                 }
             });
         });
     }
 
+    _outputImage() {
+        let sprites = File.getSprites();
+        _.forIn(sprites, file => this.outputImage(file));
+    }
+
     _outputStyle() {
         let processor = postcss();
         let styles = File.getStyles();
-        let keys = Object.keys(styles);
 
-        keys.map(p => {
-            let file = styles[p];
+        _.forIn(styles, file => {
             processor.use(this._updateDecls.bind(this, file));
-
-            let css = processor.process(file.content).css;
-            file.content = css;
+            file.content = processor.process(file.content).css;
 
             this.outputStyle(file);
         });
@@ -152,7 +128,7 @@ class Task {
         let opt = this.options;
 
         css.walkDecls(decl => {
-            if(decl.prop.indexOf('background') !== -1 && decl.value.indexOf('?__') !== -1) {
+            if(decl.prop.indexOf('background') !== -1) {
                 let val = decl.value;
                 let group = urlReg.exec(val);
 
@@ -167,17 +143,18 @@ class Task {
 
                     let pos = postcss.decl({
                         prop: 'background-position',
-                        value: `${-chip.x}px ${-chip.y}px`
+                        value: `${-chip.x/opt.convert}${opt.unit} ${-chip.y/opt.convert}${opt.unit}`
                     });
                     let size = postcss.decl({
                         prop: 'background-size',
-                        value: `${meta.width}px ${meta.height}px`
+                        value: `${meta.width/opt.convert}${opt.unit} ${meta.height/opt.convert}${opt.unit}`
                     });
 
-                    url = sprite.url || `${opt.cssPath}${tag}.png`;
+                    url = sprite.url || `${opt.cssPath}${opt.prefix}${tag}.png`;
                     decl.value = val.replace(urlReg, `url(${url})`);
 
                     let parent = decl.parent;
+
                     parent.walkDecls(decl => {
                         if(declFilter.test(decl.prop)) {
                             decl.remove();
@@ -185,53 +162,43 @@ class Task {
                     });
                     parent.append(pos);
                     parent.append(size);
-
                 }
             }
         });
     }
 
-    _outputImage() {
-        let sprites = File.getSprites();
-        let keys = Object.keys(sprites);
-
-        keys.map(tag => {
-            this.outputImage(sprites[tag]);
-        });
-    }
-
     outputStyle(file) {
-        console.log(file.content);
+        let opt = this.options;
+        let name = _.basename(file.realpath);
+        let outputPath = _.resolvePath(opt.dest + name);
+
+        fs.outputFileSync(outputPath, file.content, 'utf8');
     }
 
     outputImage(file) {
+        let opt = this.options;
+        let name = file.id;
+        let outputPath = _.resolvePath(opt.output, opt.prefix + name  + '.png');
 
+        fs.outputFileSync(outputPath, file.content, 'binary');
     }
 
-    /**
-     * Get Image realpath in stylesheet by url
-     * It can be rewrite in need
-     */
     _getImageRealpath(url, stylePath) {
         return _.joinPath(stylePath, '../' ,url);
     }
 
-    /**
-     * get stylesheet realpath by node-glob
-     */
     _getResource() {
-        let style = [];
+        let styles = [];
         let opt = this.options;
 
         opt.src.map(f => {
-            style.push(...glob.sync(f).map(p => _.resolvePath(p)));
+            styles.push(...glob.sync(f).map(p => _.resolvePath(p)));
         });
 
-        return style;
+        return styles;
     }
-
 }
 
 export default function(options) {
-    return new Task(options);
+    return new Emilia(options);
 }

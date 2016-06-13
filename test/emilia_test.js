@@ -9,7 +9,9 @@ describe('sprites.js', function() {
 describe('task.js', function() {
     let Task = require('../lib/task.js').default;
     let task = new Task({
-        src: ['test/fixtures/**/one.css']
+        src: ['test/fixtures/**/one.css'],
+        dest: 'test/tmp/',
+        output: 'test/tmp/'
     });
 
     task.run();

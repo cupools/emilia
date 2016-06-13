@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./lib/task.js').default;
+module.exports = require('./lib/emilia.js').default;

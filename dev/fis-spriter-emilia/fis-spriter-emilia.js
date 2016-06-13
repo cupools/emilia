@@ -19,7 +19,6 @@ module.exports = function(ret, conf, settings, opt) {
     });
 
     sp.initStyle = function(realpath) {
-
         let File = sp.File;
         let node = getSrc(ret, realpath);
 
