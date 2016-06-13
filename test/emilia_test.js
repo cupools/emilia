@@ -16,7 +16,6 @@ describe('task.js', function() {
 
     it('_getResource', function() {
         assert.ok(task._getResource().length);
-        assert.ok(task._getResource()[0].indexOf('emilia') > -1);
     });
 
 });

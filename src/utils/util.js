@@ -18,7 +18,7 @@ export default Object.assign(lodash, {
         return path.relative(...p);
     },
     joinPath(...p) {
-        return path.resolve(process.cwd(), path.join.apply(null, p));
+        return path.join(...p);
     },
     exists(p) {
         let ret = true;
