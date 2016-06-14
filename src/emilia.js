@@ -17,7 +17,7 @@ class Emilia {
     constructor(options) {
         this.options = Object.assign({
             src: ['*.css'],
-            dest: './',
+            dest: './components/css/',
             output: './components/images/',
             cssPath: '../components/images/',
             prefix: 'sprite-',
@@ -55,8 +55,11 @@ class Emilia {
         });
     }
 
-    initStyle(realpath) {
+    initStyle(path) {
+        let realpath = _.resolve(path);
+
         return File.wrap({
+            path,
             realpath,
             type: 'STYLE',
             content: fs.readFileSync(realpath, 'utf8')
@@ -183,9 +186,11 @@ class Emilia {
     outputStyle(file) {
         let opt = this.options;
         let name = _.basename(file.realpath);
-        let outputPath = _.resolve(opt.dest + name);
+        let outputPath = opt.dest + name;
+        let outputRealpath = _.resolve(outputPath)
 
-        fs.outputFileSync(outputPath, file.content, 'utf8');
+        fs.outputFileSync(outputRealpath, file.content, 'utf8');
+        log.build(outputPath);
     }
 
     outputSprite(file) {
@@ -194,6 +199,7 @@ class Emilia {
         let outputPath = _.resolve(opt.output, opt.prefix + name  + '.png');
 
         fs.outputFileSync(outputPath, file.content, 'binary');
+        log.build(file.path);
     }
 
     _getImageRealpath(url, stylePath) {
@@ -205,7 +211,7 @@ class Emilia {
         let opt = this.options;
 
         opt.src.map(f => {
-            styles.push(...glob.sync(f).map(p => _.resolve(p)));
+            styles.push(...glob.sync(f));
         });
 
         return styles;

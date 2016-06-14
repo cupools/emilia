@@ -1,6 +1,7 @@
 'use strict';
 
 import colors from 'colors';
+import path from 'path';
 
 let log = function(msg) {
     console.log(msg);
@@ -19,7 +20,8 @@ log.error = function(msg) {
 };
 
 log.build = function(msg) {
-    log.info('Created ' + colors.green(msg));
+    let format = path.join('.', msg);
+    log.info('Created ' + colors.green(format));
 };
 
 

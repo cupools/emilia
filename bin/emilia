@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+'use strict';
+
+let command = process.argv[2];
+
+switch(command) {
+    case '-h':
+    case 'help':
+        require('../lib/cmd/help').default();
+        break;
+    default:
+        require('../lib/cmd/main').default();
+}
