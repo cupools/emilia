@@ -1,12 +1,7 @@
 'use strict';
 
-import fs from 'fs-extra';
-import _ from './utils/util';
-import log from './utils/log';
-
 let asserts = {
     style: {},
-    image: {},
     sprite: {}
 };
 
@@ -28,15 +23,11 @@ function wrap(params) {
 }
 
 function getFile(id) {
-    return asserts.style[id] || asserts.image[id] || asserts.sprite[id];
+    return asserts.style[id] || asserts.sprite[id];
 }
 
 function getStyles() {
     return asserts.style;
-}
-
-function getImages() {
-    return asserts.image;
 }
 
 function getSprites() {
@@ -50,4 +41,4 @@ function identity() {
     }).toUpperCase();
 }
 
-export {wrap, getStyles, getImages, getSprites, getFile};
+export {wrap, getStyles, getSprites, getFile};

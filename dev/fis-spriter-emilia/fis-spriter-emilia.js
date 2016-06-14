@@ -1,3 +1,5 @@
+/* global fis */
+
 'use strict';
 
 let Emilia = require('../../main');
@@ -30,25 +32,13 @@ module.exports = function(ret, conf, settings, opt) {
         });
     };
 
-    sp.initImage = function(realpath) {
-        let File = sp.File;
-        let node = getSrc(ret, realpath);
-
-        return File.wrap({
-            node,
-            realpath,
-            type: 'IMAGE',
-            content: node.getContent()
-        });
-    };
-
     sp._getImageRealpath = function(url) {
         return getSrc(ret, url, 'url').realpath;
     };
 
     sp.outputStyle = function(file) {
         file.node.setContent(file.content);
-    }
+    };
 
     sp.outputImage = function(file) {
         let image = fis.file.wrap(require('path').resolve(process.cwd(), file.path));
@@ -57,7 +47,7 @@ module.exports = function(ret, conf, settings, opt) {
         ret.pkg[file.path] = image;
 
         file.url = image.url;
-    }
+    };
 
     sp.run();
 

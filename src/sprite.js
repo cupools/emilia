@@ -3,6 +3,7 @@
 import child from 'child_process';
 import path from 'path';
 import _ from './utils/util';
+import log from './utils/log';
 
 let storage = {};
 

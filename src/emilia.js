@@ -3,12 +3,15 @@
 import fs from 'fs-extra';
 import glob from 'glob';
 import postcss from 'postcss';
+import log from './utils/log';
+import _ from './utils/util';
 import * as File from './file';
 import * as sprite from './sprite';
-import _ from './utils/util';
 
-const urlReg = /(?:url\(['"]?([\w\W]+?)(?:\?(__)?([\w\W]+?))?['"]?\))/;
+const urlReg = /(?:url\s?\(['"]?([\w\W]+?)(?:\?(__)?([\w\d\-_]+?))?['"]?\))/;
+const replaceUrlReg = /(url\s?\(['"]?)([\w\W]+?)(['"]?\))/;
 const declFilter = /(-webkit-)?background-(size|repeat)/;
+const inlineTag = 'inline';
 
 class Emilia {
     constructor(options) {
@@ -20,7 +23,6 @@ class Emilia {
             prefix: 'sprite-',
             algorithm: 'binary-tree',
             padding: 10,
-            sizeLimit: 5 * 1024,
             unit: 'px',
             convert: 1
         }, options);
@@ -30,7 +32,6 @@ class Emilia {
 
     run() {
         this._initStyle();
-        this._initImage();
         this._buildSprite();
         this._outputImage();
         this._outputStyle();
@@ -39,7 +40,7 @@ class Emilia {
     _initStyle() {
         this._getResource().map(p => {
             let f = this.initStyle(p);
-            this._scanStyle(f);
+            this._handleStyle(f);
         });
     }
 
@@ -51,39 +52,43 @@ class Emilia {
         });
     }
 
-    _scanStyle(file) {
+    _handleStyle(file) {
         let processor = postcss();
         processor.use(this._walkDecls.bind(this, file));
-        processor.process(file.content).catch();
+        file.content = processor.process(file.content).css;
     }
 
     _walkDecls(file, css) {
-        css.walkDecls(decl => {
+        css.walkDecls(this._traverseFilter(file, (decl, file, group) => {
+            let url = group[1];
+            let tag = group[3];
+            let realpath = this._getImageRealpath(url, file.realpath);
+
+            if(_.exists(realpath)) {
+                if(tag === inlineTag) {
+                    let encode = this._encode(realpath);
+                    decl.value = decl.value.replace(replaceUrlReg, `$1${encode}$3`);
+                } else {
+                    sprite.add(realpath, tag);
+                }
+
+            } else {
+                decl.value = decl.value.replace(/\?__\w+/, '');
+                log.warn(url + ' not exsit');
+            }
+        }));
+    }
+
+    _traverseFilter(file, callback) {
+        return decl => {
             if(decl.prop.indexOf('background') !== -1) {
                 let group = urlReg.exec(decl.value);
 
                 if(group && group[2]) {
-                    let url = group[1];
-                    let tag = group[3];
-
-                    let realpath = this._getImageRealpath(url, file.realpath);
-                    sprite.add(realpath, tag);
+                    callback(decl, file, group);
                 }
             }
-        });
-    }
-
-    _initImage() {
-        let map = sprite.get();
-        _.forIn(map, val => _.uniq(val).map(this.initImage));
-    }
-
-    initImage(realpath) {
-        return File.wrap({
-            realpath,
-            type: 'IMAGE',
-            content: fs.readFileSync(realpath, 'binary')
-        });
+        };
     }
 
     _buildSprite() {
@@ -127,44 +132,38 @@ class Emilia {
     _updateDecls(file, css) {
         let opt = this.options;
 
-        css.walkDecls(decl => {
-            if(decl.prop.indexOf('background') !== -1) {
-                let val = decl.value;
-                let group = urlReg.exec(val);
+        css.walkDecls(this._traverseFilter(file, (decl, file, group) => {
+            let url = group[1];
+            let tag = group[3];
 
-                if(group && group[2]) {
-                    let url = group[1];
-                    let tag = group[3];
+            let realpath = this._getImageRealpath(url, file.realpath);
+            let sprite = File.getFile(tag);
+            let meta = sprite.meta;
+            let chip = meta.coordinates[realpath];
 
-                    let realpath = this._getImageRealpath(url, file.realpath);
-                    let sprite = File.getFile(tag);
-                    let meta = sprite.meta;
-                    let chip = meta.coordinates[realpath];
+            let pos = postcss.decl({
+                prop: 'background-position',
+                value: `${-chip.x/opt.convert}${opt.unit} ${-chip.y/opt.convert}${opt.unit}`
+            });
+            let size = postcss.decl({
+                prop: 'background-size',
+                value: `${meta.width/opt.convert}${opt.unit} ${meta.height/opt.convert}${opt.unit}`
+            });
 
-                    let pos = postcss.decl({
-                        prop: 'background-position',
-                        value: `${-chip.x/opt.convert}${opt.unit} ${-chip.y/opt.convert}${opt.unit}`
-                    });
-                    let size = postcss.decl({
-                        prop: 'background-size',
-                        value: `${meta.width/opt.convert}${opt.unit} ${meta.height/opt.convert}${opt.unit}`
-                    });
+            url = sprite.url || `${opt.cssPath}${opt.prefix}${tag}.png`;
+            decl.value = decl.value.replace(urlReg, `url(${url})`);
 
-                    url = sprite.url || `${opt.cssPath}${opt.prefix}${tag}.png`;
-                    decl.value = val.replace(urlReg, `url(${url})`);
+            let parent = decl.parent;
 
-                    let parent = decl.parent;
-
-                    parent.walkDecls(decl => {
-                        if(declFilter.test(decl.prop)) {
-                            decl.remove();
-                        }
-                    });
-                    parent.append(pos);
-                    parent.append(size);
+            parent.walkDecls(decl => {
+                if(declFilter.test(decl.prop)) {
+                    decl.remove();
                 }
-            }
-        });
+            });
+            parent.append(pos);
+            parent.append(size);
+        }));
+
     }
 
     outputStyle(file) {
@@ -196,6 +195,12 @@ class Emilia {
         });
 
         return styles;
+    }
+
+    _encode(realpath) {
+        let base64 = fs.readFileSync(realpath, {encoding: 'base64'});
+        let name = _.basename(realpath);
+        return `data:image/${name};base64,${base64}`;
     }
 }
 

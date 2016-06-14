@@ -1,28 +1,62 @@
+/* global describe,it */
+
 'use strict';
 
 let assert = require('assert');
 let fs = require('fs-extra');
+let _ = require('lodash');
 
-describe('sprites.js', function() {
+let Emilia = require('../main.js');
+let emilia = new Emilia({
+    src: ['test/fixtures/**/*.css'],
+    dest: 'test/tmp/',
+    output: 'test/tmp/'
 });
 
-describe('task.js', function() {
-    let Task = require('../lib/task.js').default;
-    let task = new Task({
-        src: ['test/fixtures/**/one.css'],
-        dest: 'test/tmp/',
-        output: 'test/tmp/'
-    });
+emilia.run();
 
-    task.run();
-
+describe('emilia.js', function() {
     it('_getResource', function() {
-        assert.ok(task._getResource().length);
+        assert.ok(emilia._getResource().length);
     });
-
 });
 
-describe('utils.js', function() {
+describe('file.js', function() {
+    let File = require('../lib/file.js');
+
+    it('getFile', function() {
+        assert.ok(File.getFile('tom').content);
+        assert.ok(File.getFile('jerry').content);
+    });
+
+    it('getStyles', function() {
+        let styles = File.getStyles();
+        let len = 0;
+
+        _.forIn(styles, function(file) {
+            assert.equal(file.type, 'STYLE');
+            assert.ok(file.content.length);
+            len += 1;
+        });
+
+        assert.equal(len, 3);
+    });
+
+    it('getSprites', function() {
+        let styles = File.getSprites();
+        let len = 0;
+
+        _.forIn(styles, function(file) {
+            assert.equal(file.type, 'SPRITE');
+            assert.ok(file.content.length);
+            len += 1;
+        });
+
+        assert.equal(len, 2);
+    });
+});
+
+describe('utils/util.js', function() {
     let _ = require('../lib/utils/util').default;
 
     it('basename', function() {
@@ -40,8 +74,18 @@ describe('utils.js', function() {
         assert.ok(_.resolvePath('b', 'c', 'a.png').indexOf('emilia/b/c/a.png') > -1);
     });
 
+    it('relativePath', function() {
+        let path = require('path');
+        assert.equal(_.relativePath('a', 'b', 'c.png'), path.relative('a', 'b', 'c.png'));
+    });
+
+    it('joinPath', function() {
+        let path = require('path');
+        assert.equal(_.joinPath('a', 'b', 'c.png'), path.join('a', 'b', 'c.png'));
+    });
+
     it('exists', function() {
         assert.ok(_.exists('package.json'));
         assert.ifError(_.exists('unexist'));
-    })
+    });
 });
