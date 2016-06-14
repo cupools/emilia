@@ -11,19 +11,22 @@ export default Object.assign(lodash, {
     name(p) {
         return path.basename(p).replace(/\.[\w\d]+$/, '');
     },
-    resolvePath(...p) {
+    resolve(...p) {
         return path.resolve.apply(null, [process.cwd(), ...p]);
     },
-    relativePath(...p) {
+    relative(...p) {
         return path.relative(...p);
     },
-    joinPath(...p) {
+    join(...p) {
         return path.join(...p);
     },
     exists(p) {
-        let ret = true;
+        return this.statSync(p);
+    },
+    statSync(p) {
+        let ret = false;
         try {
-            fs.statSync(p);
+            ret = fs.statSync(p);
         } catch (e) {
             ret = false;
         }

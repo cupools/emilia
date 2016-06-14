@@ -17,7 +17,9 @@ module.exports = function(ret, conf, settings, opt) {
     src = src.map(f => '.' + f);
 
     let sp = new Emilia({
-        src: src
+        src: src,
+        unit: 'rem',
+        convert: 16
     });
 
     sp.initStyle = function(realpath) {
@@ -33,14 +35,15 @@ module.exports = function(ret, conf, settings, opt) {
     };
 
     sp._getImageRealpath = function(url) {
-        return getSrc(ret, url, 'url').realpath;
+        let img = getSrc(ret, url, 'url');
+        return img && getSrc(ret, url, 'url').realpath;
     };
 
     sp.outputStyle = function(file) {
         file.node.setContent(file.content);
     };
 
-    sp.outputImage = function(file) {
+    sp.outputSprite = function(file) {
         let image = fis.file.wrap(require('path').resolve(process.cwd(), file.path));
         image.setContent(file.content);
         fis.compile(image);
@@ -52,7 +55,6 @@ module.exports = function(ret, conf, settings, opt) {
     sp.run();
 
 };
-
 
 function getSrc(ret, val, field) {
     let src = ret.src;

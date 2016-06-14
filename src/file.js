@@ -1,10 +1,5 @@
 'use strict';
 
-let asserts = {
-    style: {},
-    sprite: {}
-};
-
 class File {
     constructor(attr) {
         attr.id = attr.id || identity();
@@ -12,27 +7,34 @@ class File {
     }
 }
 
-function wrap(params) {
-    let f = new File(params);
-    let type = f.type.toLowerCase();
-    let id = f.id;
+let ctl = {
+    storage: {
+        style: {},
+        sprite: {},
+    },
+    wrap(params) {
+        let f = new File(params);
+        let type = f.type.toLowerCase();
+        let id = f.id;
 
-    asserts[type][id] = f;
+        this.storage[type][id] = f;
 
-    return f;
-}
-
-function getFile(id) {
-    return asserts.style[id] || asserts.sprite[id];
-}
-
-function getStyles() {
-    return asserts.style;
-}
-
-function getSprites() {
-    return asserts.sprite;
-}
+        return f;
+    },
+    getFile(id) {
+        return this.storage.style[id] || this.storage.sprite[id];
+    },
+    getStyles() {
+        return this.storage.style;
+    },
+    getSprites() {
+        return this.storage.sprite;
+    },
+    clear() {
+        this.storage.style = {};
+        this.storage.sprite = {};
+    }
+};
 
 function identity() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -41,4 +43,4 @@ function identity() {
     }).toUpperCase();
 }
 
-export {wrap, getStyles, getSprites, getFile};
+export default ctl;

@@ -1,11 +1,10 @@
 'use strict';
 
 import child from 'child_process';
-import path from 'path';
 import _ from './utils/util';
-import log from './utils/log';
 
-let storage = {};
+let asserts = {};
+let cache = {};
 
 class Sprite {
     constructor(tag) {
@@ -14,11 +13,13 @@ class Sprite {
         this.properties = null;
         this.coordinates = null;
         this.image = null;
+        this.stamp = '';
     }
 
-    add(realpath) {
+    add(realpath, stamp) {
         if(this.dependences.indexOf(realpath) === -1) {
             this.dependences.push(realpath);
+            this.mark(stamp);
         }
     }
 
@@ -31,33 +32,68 @@ class Sprite {
 
         Object.assign(this, {properties, coordinates, image});
     }
+
+    equal(obj) {
+        return obj && this.tag === obj.tag && this.stamp === obj.stamp;
+    }
+
+    mark(stamp) {
+        this.stamp += stamp;
+    }
 }
 
 function processSprite({tag, sprites, options}) {
-    let ret = child.execFileSync(path.join(__dirname, 'spritesmith'), ['-sprites', JSON.stringify(sprites), '-options', JSON.stringify(options)]);
+    let ret = child.execFileSync(_.join(__dirname, 'spritesmith'), ['-sprites', JSON.stringify(sprites), '-options', JSON.stringify(options)]);
     let result = JSON.parse(ret.toString());
-    storage[tag] = result;
 
     return result;
 }
 
-function build(opt, callback) {
-    _.forIn(storage, sprite => {
-        sprite.process(opt);
-        callback(sprite);
+function shouldRebuild() {
+    let ret = false;
+
+    _.forIn(asserts, (sprite, tag) => {
+        let old = cache[tag];
+
+        if(!old || !sprite.equal(old)) {
+            ret = true;
+            return false;
+        }
     });
+
+    return ret;
 }
 
-function add(realpath, tag) {
-    if(!storage[tag]) {
-        storage[tag] = new Sprite(tag);
+export default {
+    build(opt, callback) {
+        if(shouldRebuild()) {
+            _.forIn(asserts, sprite => {
+                sprite.process(opt);
+            });
+        } else {
+            asserts = cache;
+            cache = {};
+        }
+
+        _.forIn(asserts, sprite => {
+            callback(sprite);
+        });
+    },
+    add(tag, realpath, stamp) {
+        if(!asserts[tag]) {
+            asserts[tag] = new Sprite(tag);
+        }
+
+        asserts[tag].add(realpath, stamp);
+    },
+    get(tag) {
+        return tag ? asserts[tag] : asserts;
+    },
+    save() {
+        cache = asserts;
+        this.clear();
+    },
+    clear() {
+        asserts = {};
     }
-
-    storage[tag].add(realpath);
-}
-
-function get(tag) {
-    return tag ? storage[tag] : storage;
-}
-
-export {build, add, get};
+};

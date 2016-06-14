@@ -22,4 +22,6 @@ log.build = function(msg) {
     log.info('Created ' + colors.green(msg));
 };
 
+
+
 export default log;

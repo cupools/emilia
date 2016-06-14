@@ -22,7 +22,7 @@ describe('emilia.js', function() {
 });
 
 describe('file.js', function() {
-    let File = require('../lib/file.js');
+    let File = require('../lib/file.js').default;
 
     it('getFile', function() {
         assert.ok(File.getFile('tom').content);
@@ -69,19 +69,19 @@ describe('utils/util.js', function() {
         assert.equal(_.name('/a/c/v/a'), 'a');
     });
 
-    it('resolvePath', function() {
-        assert.ok(_.resolvePath('a.png').indexOf('emilia/a.png') > -1);
-        assert.ok(_.resolvePath('b', 'c', 'a.png').indexOf('emilia/b/c/a.png') > -1);
+    it('resolve', function() {
+        assert.ok(_.resolve('a.png').indexOf('emilia/a.png') > -1);
+        assert.ok(_.resolve('b', 'c', 'a.png').indexOf('emilia/b/c/a.png') > -1);
     });
 
-    it('relativePath', function() {
+    it('relative', function() {
         let path = require('path');
-        assert.equal(_.relativePath('a', 'b', 'c.png'), path.relative('a', 'b', 'c.png'));
+        assert.equal(_.relative('a', 'b', 'c.png'), path.relative('a', 'b', 'c.png'));
     });
 
-    it('joinPath', function() {
+    it('join', function() {
         let path = require('path');
-        assert.equal(_.joinPath('a', 'b', 'c.png'), path.join('a', 'b', 'c.png'));
+        assert.equal(_.join('a', 'b', 'c.png'), path.join('a', 'b', 'c.png'));
     });
 
     it('exists', function() {

@@ -5,8 +5,8 @@ import glob from 'glob';
 import postcss from 'postcss';
 import log from './utils/log';
 import _ from './utils/util';
-import * as File from './file';
-import * as sprite from './sprite';
+import File from './file';
+import sprite from './sprite';
 
 const urlReg = /(?:url\s?\(['"]?([\w\W]+?)(?:\?(__)?([\w\d\-_]+?))?['"]?\))/;
 const replaceUrlReg = /(url\s?\(['"]?)([\w\W]+?)(['"]?\))/;
@@ -24,16 +24,27 @@ class Emilia {
             algorithm: 'binary-tree',
             padding: 10,
             unit: 'px',
-            convert: 1
+            convert: 1,
+            quiet: false
         }, options);
 
         this.File = File;
     }
 
     run() {
+        this.collect();
+        this.process();
+    }
+
+    collect() {
+        File.clear();
+        sprite.save();
         this._initStyle();
+    }
+
+    process() {
         this._buildSprite();
-        this._outputImage();
+        this._outputSprite();
         this._outputStyle();
     }
 
@@ -63,15 +74,12 @@ class Emilia {
             let url = group[1];
             let tag = group[3];
             let realpath = this._getImageRealpath(url, file.realpath);
+            let stat = _.statSync(realpath);
 
-            if(_.exists(realpath)) {
-                if(tag === inlineTag) {
-                    let encode = this._encode(realpath);
-                    decl.value = decl.value.replace(replaceUrlReg, `$1${encode}$3`);
-                } else {
-                    sprite.add(realpath, tag);
+            if(stat) {
+                if(tag !== inlineTag) {
+                    sprite.add(tag, realpath, stat.ctime);
                 }
-
             } else {
                 decl.value = decl.value.replace(/\?__\w+/, '');
                 log.warn(url + ' not exsit');
@@ -80,7 +88,7 @@ class Emilia {
     }
 
     _traverseFilter(file, callback) {
-        return decl => {
+        return function(decl) {
             if(decl.prop.indexOf('background') !== -1) {
                 let group = urlReg.exec(decl.value);
 
@@ -95,7 +103,7 @@ class Emilia {
         let opt = this.options;
 
         sprite.build(opt, sp => {
-            let path = _.joinPath(opt.output, opt.prefix + sp.tag + '.png');
+            let path = _.join(opt.output, opt.prefix + sp.tag + '.png');
             let content = new Buffer(sp.image);
 
             File.wrap({
@@ -112,9 +120,9 @@ class Emilia {
         });
     }
 
-    _outputImage() {
+    _outputSprite() {
         let sprites = File.getSprites();
-        _.forIn(sprites, file => this.outputImage(file));
+        _.forIn(sprites, file => this.outputSprite(file));
     }
 
     _outputStyle() {
@@ -137,6 +145,13 @@ class Emilia {
             let tag = group[3];
 
             let realpath = this._getImageRealpath(url, file.realpath);
+
+            if(tag === inlineTag) {
+                let encode = this._encode(realpath);
+                decl.value = decl.value.replace(replaceUrlReg, `$1${encode}$3`);
+                return;
+            } 
+
             let sprite = File.getFile(tag);
             let meta = sprite.meta;
             let chip = meta.coordinates[realpath];
@@ -163,27 +178,26 @@ class Emilia {
             parent.append(pos);
             parent.append(size);
         }));
-
     }
 
     outputStyle(file) {
         let opt = this.options;
         let name = _.basename(file.realpath);
-        let outputPath = _.resolvePath(opt.dest + name);
+        let outputPath = _.resolve(opt.dest + name);
 
         fs.outputFileSync(outputPath, file.content, 'utf8');
     }
 
-    outputImage(file) {
+    outputSprite(file) {
         let opt = this.options;
         let name = file.id;
-        let outputPath = _.resolvePath(opt.output, opt.prefix + name  + '.png');
+        let outputPath = _.resolve(opt.output, opt.prefix + name  + '.png');
 
         fs.outputFileSync(outputPath, file.content, 'binary');
     }
 
     _getImageRealpath(url, stylePath) {
-        return _.joinPath(stylePath, '../' ,url);
+        return _.join(stylePath, '../' ,url);
     }
 
     _getResource() {
@@ -191,7 +205,7 @@ class Emilia {
         let opt = this.options;
 
         opt.src.map(f => {
-            styles.push(...glob.sync(f).map(p => _.resolvePath(p)));
+            styles.push(...glob.sync(f).map(p => _.resolve(p)));
         });
 
         return styles;
