@@ -15,11 +15,11 @@ let emilia = new Emilia({
     quiet: true
 });
 
-before(function() {
-    fs.emptyDirSync('test/tmp');
-});
-
 describe('Base Function', function() {
+    
+    before(function() {
+        fs.emptyDirSync('test/tmp');
+    });
 
     describe('emilia.js', function() {
 
@@ -132,4 +132,4 @@ describe('Base Function', function() {
             assert.ifError(_.exists('unexist'));
         });
     });
-})
+});

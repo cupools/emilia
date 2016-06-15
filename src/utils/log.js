@@ -10,7 +10,9 @@ let log = function(msg) {
 };
 
 log.console = function(msg) {
-    !quiet && console.log(msg);
+    if(!quiet) {
+        console.log(msg);
+    }
 };
 
 log.info = function(msg) {

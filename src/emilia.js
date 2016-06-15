@@ -16,10 +16,10 @@ const inlineTag = 'inline';
 class Emilia {
     constructor(options) {
         this.options = Object.assign({
-            src: ['*.css'],
-            dest: './components/css/',
-            output: './components/images/',
-            cssPath: '../components/images/',
+            src: ['**/*.css'],
+            dest: 'build/css/',
+            output: 'build/images/',
+            cssPath: '../images/',
             prefix: 'sprite-',
             algorithm: 'binary-tree',
             padding: 10,
@@ -221,7 +221,7 @@ class Emilia {
             styles.push(...glob.sync(f));
         });
 
-        return styles;
+        return _.uniq(styles);
     }
 
     _encode(realpath) {

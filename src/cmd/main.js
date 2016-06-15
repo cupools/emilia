@@ -4,18 +4,7 @@ import Emilia from '../emilia';
 
 export default function() {
     let argv = process.argv.slice(2);
-    let options = {
-        src: ['*.css'],
-        dest: './components/css/',
-        output: './components/images/',
-        cssPath: '../components/images/',
-        prefix: 'sprite-',
-        algorithm: 'binary-tree',
-        padding: 10,
-        unit: 'px',
-        convert: 1,
-        quiet: false
-    };
+    let options = {};
 
     while(argv.length) {
         let cmd = argv.shift();

@@ -127,8 +127,6 @@ describe('Different Options', function() {
                 css = fs.readFileSync('test/tmp/rem.css', 'utf8');
             }, 'should output css file');
 
-            let map = getMap('rem');
-            let picInfo = getPicInfo();
             postcss.parse(css).walkDecls(/background/, function(decl) {
                 if(decl.prop === 'background') {
                     let url = /url\(([\w\W]+?)\)/.exec(decl.value)[1];
