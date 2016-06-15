@@ -1,8 +1,8 @@
 ## Emilia
 
-Css sprite tool, supports rem.
+Css sprite tool, supports rem, supports output multiple sprites pictures.
 
-`Emilia` gets stylesheet files and recognizes sprite mark like `url(a.png?__sprite)`, finally output updated stylesheet files as well as sprite images. It supports `rem` and `px`, also supports numerical conversion. Besides, it tries to be designed easier to fit different frameworks, such as fis3 or webpack.
+`Emilia` gets stylesheet files and recognizes sprite mark like `url(a.png?__sprite)`, finally output updated stylesheet files as well as sprite pictures. It supports `rem` and `px`, also supports numerical conversion. Besides, it tries to be designed easier to fit different frameworks, such as fis3 or webpack.
 
 ## Getting started
 ```bash
@@ -40,10 +40,10 @@ $ emilia help
 
     -s, --src <src>        stylesheet path, use glob patterns
     -d, --dest <dir>       output compiled stylesheet file to <dir>
-    -o, --output <dir>     output sprite images to <dir>
+    -o, --output <dir>     output sprite pictures to <dir>
     --cssPath              image url path
-    --prefix               prefix sprite images' basename
-    --algorithm            layout algorithm of sprite image
+    --prefix               prefix sprite pictures' basename
+    --algorithm            layout algorithm of sprite pictures
     --padding              padding between images
     --convert              numerical scale
     --unit                 unit of backgound-size and position
@@ -74,7 +74,7 @@ Result like this.
   background: url(../images/sprite-icon.png) no-repeat;
   background-position: -16.625rem 0rem;
   background-size: 22.875rem 16rem;
-
+}
 ```
 
 ![sprite-icon](docs/sprite-icon.png)
@@ -92,16 +92,16 @@ Constructor for a new Emilia instance
         - desc: output compiled stylesheet files to dir
         - default: 'build/css/'
     - output `String` 
-        - desc: output sprite images to dir
+        - desc: output sprite pictures to dir
         - default: 'build/images/'
     - cssPath `String` 
         - desc: image url path
         - default: '../images/'
     - prefix `String` 
-        - desc: prefix sprite images' basename
+        - desc: prefix sprite pictures' basename
         - default: 'sprite-'
     - algorithm `String` 
-        - desc: layout algorithm of sprite image
+        - desc: layout algorithm of sprite pictures
         - default: 'binary-tree'
         - value: ['top-down' | 'left-right' | 'diagonal' | 'alt-diagonal' | 'binary-tree']
     - padding `Number` 
@@ -124,7 +124,7 @@ Start compilation, include `emilia.collect` and `emilia.process`.
 Get stylesheet files and wrap into `file` object, prepare for compilation
 
 ### `emilia.process()`
-Analysises stylesheet and recognize sprite mark, creates sprite image with coordinates, output both sprite images and updated stylesheet files.
+Analysises stylesheet and recognize sprite mark, creates sprite pictures with coordinates, output both sprite pictures and updated stylesheet files.
 
 ## Examples
 ### single stylesheet file
@@ -137,6 +137,21 @@ emilia = new Emilia({
     cssPath: './images/'
 });
 emilia.run();
+```
+
+```css
+.icon4 {
+  background: url(../images/4.png?__tom) no-repeat;
+}
+.icon5 {
+  background: url(../images/5.png?__jerry) no-repeat;
+}
+.icon6 {
+  background: url(../images/6.png?__jerry) no-repeat;
+}
+.icon7 {
+  background: url(../images/7.png?__inline) no-repeat;
+}
 ```
 
 ### mulit stylesheet file
@@ -166,6 +181,14 @@ emilia = new Emilia({
     quiet: true
 });
 emilia.run();
+```
+
+### inline image
+
+```css
+.icon {
+    background: url(../images/icon?__inline);
+}
 ```
 
 ### use in CLI
