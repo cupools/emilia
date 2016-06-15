@@ -140,6 +140,7 @@ emilia.run();
 ```
 
 ```css
+/* test/fixtures/css/main.css */
 .icon4 {
   background: url(../images/4.png?__tom) no-repeat;
 }
