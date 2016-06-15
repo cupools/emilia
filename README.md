@@ -6,7 +6,7 @@ Css sprite tool, supports rem, supports output multiple sprites pictures.
 
 ## Getting started
 ```bash
-npm install --save emilia
+npm install --save-dev emilia
 ```
 
 When used in module.
