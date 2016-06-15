@@ -1,6 +1,6 @@
 {
     "name": "emilia",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Css sprite tool, supports rem, supports output multiple sprites pictures",
     "main": "main.js",
     "bin": {
@@ -16,7 +16,6 @@
         "colors": "^1.1.2",
         "fs-extra": "^0.30.0",
         "glob": "^7.0.3",
-        "images": "^3.0.0",
         "lodash": "^4.13.1",
         "postcss": "^5.0.21",
         "spritesmith": "^3.1.0"
@@ -32,7 +31,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/cupools/emilia"
+        "url": "git://github.com/cupools/emilia"
     },
     "bugs": {
         "url": "https://github.com/cupools/emilia/issues"
