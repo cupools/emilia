@@ -1,91 +1,233 @@
-/* global describe,it */
+/* global describe,it,before */
 
 'use strict';
 
 let assert = require('assert');
 let fs = require('fs-extra');
-let _ = require('lodash');
+let postcss = require('postcss');
 
 let Emilia = require('../main.js');
-let emilia = new Emilia({
-    src: ['test/fixtures/**/*.css'],
-    dest: 'test/tmp/',
-    output: 'test/tmp/'
-});
+let emilia = null;
 
-emilia.run();
+describe('Different Options', function() {
 
-describe('emilia.js', function() {
-    it('_getResource', function() {
-        assert.ok(emilia._getResource().length);
-    });
-});
+    describe('with single stylesheet', function() {
 
-describe('file.js', function() {
-    let File = require('../lib/file.js').default;
-
-    it('getFile', function() {
-        assert.ok(File.getFile('tom').content);
-        assert.ok(File.getFile('jerry').content);
-    });
-
-    it('getStyles', function() {
-        let styles = File.getStyles();
-        let len = 0;
-
-        _.forIn(styles, function(file) {
-            assert.equal(file.type, 'STYLE');
-            assert.ok(file.content.length);
-            len += 1;
+        before(function() {
+            fs.emptyDirSync('test/tmp');
         });
 
-        assert.equal(len, 3);
-    });
+        it('#run()', function() {
+            assert.doesNotThrow(function() {
+                emilia = new Emilia({
+                    src: ['test/fixtures/css/main.css'],
+                    dest: 'test/tmp/',
+                    output: 'test/tmp/',
+                    cssPath: '../images/',
+                    quiet: true
+                });
+                emilia.run();
 
-    it('getSprites', function() {
-        let styles = File.getSprites();
-        let len = 0;
-
-        _.forIn(styles, function(file) {
-            assert.equal(file.type, 'SPRITE');
-            assert.ok(file.content.length);
-            len += 1;
+            }, 'should run without exception');
         });
 
-        assert.equal(len, 2);
+        it('output stylesheet', function() {
+            let css = '';
+
+            assert.doesNotThrow(function() {
+                css = fs.readFileSync('test/tmp/main.css', 'utf8');
+            }, 'should output css file');
+
+            let map = getMap('main');
+            let picInfo = getPicInfo();
+            postcss.parse(css).walkRules(checkStylesheet.bind(this, map, picInfo));
+        });
+
+        it('output sprite', function() {
+            assert.doesNotThrow(function() {
+                fs.statSync('test/tmp/sprite-tom.png');
+                fs.statSync('test/tmp/sprite-jerry.png');
+            }, 'should output sprite file');
+        });
+    });
+
+    describe('with multi stylesheet', function() {
+
+        before(function() {
+            fs.emptyDirSync('test/tmp');
+        });
+
+        it('#run()', function() {
+            assert.doesNotThrow(function() {
+                emilia = new Emilia({
+                    src: ['test/fixtures/css/multi_*.css'],
+                    dest: 'test/tmp/',
+                    output: 'test/tmp/',
+                    cssPath: '../images/',
+                    quiet: true
+                }); 
+                emilia.run();
+
+            }, 'should run without exception');
+        });
+
+        it('output stylesheet', function() {
+            let one = '';
+            let two = '';
+
+            assert.doesNotThrow(function() {
+                one = fs.readFileSync('test/tmp/multi_one.css', 'utf8');
+                two = fs.readFileSync('test/tmp/multi_two.css', 'utf8');
+            }, 'should output css file');
+
+            let map = getMap('multi');
+            let picInfo = getPicInfo();
+
+            postcss.parse(one).walkRules(checkStylesheet.bind(this, map, picInfo));
+            postcss.parse(two).walkRules(checkStylesheet.bind(this, map, picInfo));
+        });
+
+        it('output sprite', function() {
+            assert.doesNotThrow(function() {
+                fs.statSync('test/tmp/sprite-tom.png');
+                fs.statSync('test/tmp/sprite-jerry.png');
+            }, 'should output sprite file');
+        });
+    });
+
+    describe('with rem stylesheet', function() {
+
+        before(function() {
+            fs.emptyDirSync('test/tmp');
+        });
+
+        it('#run()', function() {
+            assert.doesNotThrow(function() {
+                emilia = new Emilia({
+                    src: ['test/fixtures/css/rem.css'],
+                    dest: 'test/tmp/',
+                    output: 'test/tmp/',
+                    cssPath: './',
+                    prefix: '',
+                    algorithm: 'top-down',
+                    padding: 100,
+                    unit: 'rem',
+                    convert: 16,
+                    quiet: true
+                });
+                emilia.run();
+
+            }, 'should run without exception');
+        });
+
+        it('output stylesheet', function() {
+            let css = '';
+
+            assert.doesNotThrow(function() {
+                css = fs.readFileSync('test/tmp/rem.css', 'utf8');
+            }, 'should output css file');
+
+            let map = getMap('rem');
+            let picInfo = getPicInfo();
+            postcss.parse(css).walkDecls(/background/, function(decl) {
+                if(decl.prop === 'background') {
+                    let url = /url\(([\w\W]+?)\)/.exec(decl.value)[1];
+                    assert.equal(url, './sprite.png', 'background url should be replace correct');
+
+                } else if(decl.prop === 'background-size') {
+                    assert.equal(decl.value, '16rem 28.5rem', 'background size should be convert correct');
+                }
+                
+            });
+        });
+
+        it('output sprite', function() {
+            assert.doesNotThrow(function() {
+                fs.statSync('test/tmp/sprite.png');
+            }, 'should output sprite file');
+        });
     });
 });
 
-describe('utils/util.js', function() {
-    let _ = require('../lib/utils/util').default;
+function checkStylesheet(map, picInfo, rule) {
+    if(rule.selector.indexOf('icon') > -1) {
+        let idx = +rule.selector[5];
+        let tag = map[rule.selector].tag;
 
-    it('basename', function() {
-        assert.equal(_.basename('/a/c/v/a.png'), 'a.png');
-        assert.equal(_.basename('/a/c/v/a'), 'a');
-    });
+        rule.walkDecls(/background(-image)?$/, function(decl) {
+            let url = /url\(([\w\W]+?)\)/.exec(decl.value)[1];
 
-    it('name', function() {
-        assert.equal(_.name('/a/c/v/a.png'), 'a');
-        assert.equal(_.name('/a/c/v/a'), 'a');
-    });
+            if(tag === 'inline') {
+                assert.ok(url.indexOf('base64') > -1, 'picture should be encode to base64');
+            } else {
+                assert.equal(url, '../images/sprite-' + tag + '.png', 'background url should be replace correct');
+            }
+        });
 
-    it('resolve', function() {
-        assert.ok(_.resolve('a.png').indexOf('emilia/a.png') > -1);
-        assert.ok(_.resolve('b', 'c', 'a.png').indexOf('emilia/b/c/a.png') > -1);
-    });
+        rule.walkDecls(/background-size/, function(decl) {
+            let size = picInfo[idx];
 
-    it('relative', function() {
-        let path = require('path');
-        assert.equal(_.relative('a', 'b', 'c.png'), path.relative('a', 'b', 'c.png'));
-    });
+            if(tag !== 'inline') {
+                assert.notEqual(decl.value, size[0] + 'px ' + size[1] + 'px', 'background size should be replace');
+            }
+        });
 
-    it('join', function() {
-        let path = require('path');
-        assert.equal(_.join('a', 'b', 'c.png'), path.join('a', 'b', 'c.png'));
-    });
+        rule.walkDecls(/background-position/, function() {
+            let flag = false;
 
-    it('exists', function() {
-        assert.ok(_.exists('package.json'));
-        assert.ifError(_.exists('unexist'));
-    });
-});
+            if(tag !== 'inline') {
+                flag = true;
+            }
+
+            assert.ok(flag || tag === 'inline', 'background position should be append base on inline');
+        });
+
+    } else if(rule.selector.indexOf('unexist') > -1) {
+        rule.walkDecls(/background(-image)?$/, function(decl) {
+            let url = /url\(([\w\W]+?)\)/.exec(decl.value)[1];
+            assert.ok(url.indexOf('undefined') > -1, 'picture unexist should not be replace');
+        });
+    }
+}
+
+function getMap(type) {
+    let map = {
+        main: {
+            '.icon0': {tag: 'tom'},
+            '.icon1': {tag: 'tom'},
+            '.icon2': {tag: 'inline'},
+            '.icon3': {tag: 'tom'},
+            '.icon4': {tag: 'tom'},
+            '.icon5': {tag: 'jerry'},
+            '.icon6': {tag: 'jerry'},
+            '.icon7': {tag: 'inline'}
+        },
+        multi: {
+            '.icon0': {tag: 'tom'},
+            '.icon1': {tag: 'tom'},
+            '.icon2': {tag: 'tom'},
+            '.icon3': {tag: 'tom'},
+            '.icon4': {tag: 'tom'},
+            '.icon5': {tag: 'jerry'},
+            '.icon6': {tag: 'jerry'},
+            '.icon7': {tag: 'jerry'}
+        },
+        rem: {
+            '.icon0': {tag: 'tom'}
+        }
+    };
+    return map[type || 'main'];
+}
+
+function getPicInfo() {
+    return {
+        '0': [128, 128],
+        '1': [128, 128],
+        '2': [50, 50],
+        '3': [128, 128],
+        '4': [128, 128],
+        '5': [200, 75],
+        '6': [75, 150],
+        '7': [100, 100]
+    };
+}

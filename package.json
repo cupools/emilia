@@ -1,13 +1,13 @@
 {
     "name": "emilia",
     "version": "0.0.1",
-    "description": "css sprite",
+    "description": "css sprite tool, supports rem",
     "main": "main.js",
     "bin": {
         "emilia": "./bin/emilia"
     },
     "scripts": {
-        "test": "mocha test/emilia_test",
+        "test": "mocha test/",
         "babel": "babel ./src -d ./lib/ -D -w --presets es2015"
     },
     "author": "liyh <cupools@gmail.com>",

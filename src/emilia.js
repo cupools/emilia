@@ -29,6 +29,7 @@ class Emilia {
         }, options);
 
         this.File = File;
+        log.trigger(this.options.quiet);
     }
 
     run() {
@@ -81,11 +82,11 @@ class Emilia {
 
             if(stat) {
                 if(tag !== inlineTag) {
-                    sprite.add(tag, realpath, stat.ctime);
+                    sprite.add(tag, realpath, stat.mtime);
                 }
             } else {
                 decl.value = decl.value.replace(/\?__\w+/, '');
-                log.warn(url + ' not exsit');
+                log.warn(url + ' not exists');
             }
         }));
     }
@@ -113,6 +114,7 @@ class Emilia {
                 path,
                 content,
                 id: sp.tag,
+                sprite: sp,
                 type: 'SPRITE',
                 meta: {
                     width: sp.properties.width,
@@ -186,8 +188,13 @@ class Emilia {
     outputStyle(file) {
         let opt = this.options;
         let name = _.basename(file.realpath);
-        let outputPath = opt.dest + name;
-        let outputRealpath = _.resolve(outputPath)
+        let outputPath = _.join(opt.dest, name);
+        let outputRealpath = _.resolve(outputPath);
+
+        if(_.exists(outputRealpath)) {
+            outputPath = _.join(opt.dest, opt.prefix + name);
+            outputRealpath = _.resolve(outputPath);
+        }
 
         fs.outputFileSync(outputRealpath, file.content, 'utf8');
         log.build(outputPath);
@@ -219,11 +226,8 @@ class Emilia {
 
     _encode(realpath) {
         let base64 = fs.readFileSync(realpath, {encoding: 'base64'});
-        let name = _.basename(realpath);
-        return `data:image/${name};base64,${base64}`;
+        return `data:image/png;base64,${base64}`;
     }
 }
 
-export default function(options) {
-    return new Emilia(options);
-}
+export default Emilia;

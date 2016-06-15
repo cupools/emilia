@@ -3,20 +3,26 @@
 import colors from 'colors';
 import path from 'path';
 
+let quiet = false;
+
 let log = function(msg) {
-    console.log(msg);
+    log.console(msg);
+};
+
+log.console = function(msg) {
+    !quiet && console.log(msg);
 };
 
 log.info = function(msg) {
-    console.log('[info]: ' + msg);
+    log.console('[info]: ' + msg);
 };
 
 log.warn = function(msg) {
-    console.log('[warn]: ' + colors.yellow(msg));
+    log.console('[warn]: ' + colors.yellow(msg));
 };
 
 log.error = function(msg) {
-    console.log('[error]: ' + colors.red(msg));
+    log.console('[error]: ' + colors.red(msg));
 };
 
 log.build = function(msg) {
@@ -24,6 +30,8 @@ log.build = function(msg) {
     log.info('Created ' + colors.green(format));
 };
 
-
+log.trigger = function(stat) {
+    quiet = !!stat;
+};
 
 export default log;
