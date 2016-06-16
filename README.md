@@ -44,7 +44,7 @@ $ emilia help
     -d, --dest <dir>       output compiled stylesheet file to <dir>
     -o, --output <dir>     output sprite pictures to <dir>
     --cssPath              image url path
-    --prefix               prefix sprite pictures' basename
+    --prefix               prefix basename of sprite picture
     --algorithm            layout algorithm of sprite pictures
     --padding              padding between images
     --convert              numerical scale
