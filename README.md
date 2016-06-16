@@ -4,6 +4,8 @@ Css sprite tool, supports rem, supports output multiple sprites pictures.
 
 `Emilia` gets stylesheet files and recognizes sprite mark like `url(a.png?__sprite)`, finally output updated stylesheet files as well as sprite pictures. It supports `rem` and `px`, also supports numerical conversion. Besides, it tries to be designed easier to fit different frameworks, such as fis3 or webpack.
 
+If you are tend to build sprite pictures according to image resources, maybe you like [Lia](https://github.com/cupools/lia).
+
 ## Getting started
 ```bash
 npm install --save-dev emilia
