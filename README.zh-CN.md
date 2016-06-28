@@ -1,19 +1,17 @@
 ## Emilia
 
-Css sprite tool, supports rem, supports output multiple sprites pictures.
+Sprite 工具，支持 `rem`，支持输出多套精灵图片。
 
-`Emilia` gets stylesheet files and recognizes sprite mark like `url(a.png?__sprite)`, finally output updated stylesheet files as well as sprite pictures. It supports `rem` and `px`, also supports numerical conversion. Besides, it tries to be designed easier to fit different frameworks, such as fis3 or webpack.
+`Emilia` 通过分析样式文件并识别其中的标记，如 `url(a.png?__sprite)`，最终输出更新的样式文件和精灵图片。支持 `rem` 和 `px`，包括数值转换。此外，这个模块被设计得更加容易适应不同的框架，如 FIS3 或 Webpack。
 
-If you are tend to build sprite pictures according to image resources, maybe you like [Lia](https://github.com/cupools/lia).
+如果你倾向于基于图片资源创建精灵图片，也许你会喜欢 [Lia](https://github.com/cupools/lia)。
 
-[中文文档](README.zn-CN.md)
-
-## Getting started
+## 使用
 ```bash
 npm install --save-dev emilia
 ```
 
-When used in module.
+在模块中使用：
 
 ```js
 var Emilia = require('emilia');
@@ -29,7 +27,7 @@ var emilia = new Emilia({
 emilia.run();
 ```
 
-When used in CLI.
+在 CLI 中使用：
 
 ```bash
 $ emilia help
@@ -54,10 +52,10 @@ $ emilia help
     --quiet                disabled output info in the console
 ```
 
-Result like this.
+功能如下所示：
 
 ```css
-/*    origin stylesheet    */
+/*    原始样式文件    */
 .icon0 {
   background: #ccc url(../images/0.png?__icon) no-repeat;
   background-size: 128px 128px;
@@ -67,7 +65,7 @@ Result like this.
   background-size: 50px 50px;
 }
 
-/*    result stylesheet    */
+/*    输出样式文件    */
 .icon0 {
   background: #ccc url(../images/sprite-icon.png) no-repeat;
   background-position: 0rem 0rem;
@@ -83,55 +81,55 @@ Result like this.
 
 ![sprite-icon](docs/sprite-icon.png)
 
-## Documentation
+## 文档
 
 ### `new Emilia(options)`
-Constructor for a new Emilia instance
+创建一个 `Emilia` 实例
 
-- options `Object` - Compile parameters
+- options `Object` - 参数
     - src `Array`
-        - desc: Stylesheet path, use [glob patterns](https://github.com/isaacs/node-glob)
-        - default: ['**/\*.css']
+        - 描述: 样式文件路径, 使用 [glob patterns](https://github.com/isaacs/node-glob)
+        - 默认: ['**/\*.css']
     - dest `String`
-        - desc: output compiled stylesheet files to dir
-        - default: 'build/css/'
+        - 描述: 更新后的样式文件的输出路径
+        - 默认: 'build/css/'
     - output `String` 
-        - desc: output sprite pictures to dir
-        - default: 'build/images/'
+        - 描述: 精灵图片的输出路径
+        - 默认: 'build/images/'
     - cssPath `String` 
-        - desc: image url path
-        - default: '../images/'
+        - 描述: 精灵图片的 url
+        - 默认: '../images/'
     - prefix `String` 
-        - desc: prefix sprite pictures' basename
-        - default: 'sprite-'
+        - 描述: 输出精灵图片的文件名前缀
+        - 默认: 'sprite-'
     - algorithm `String` 
-        - desc: layout algorithm of sprite pictures
-        - default: 'binary-tree'
+        - 描述: 精灵图片的排序算法
+        - 默认: 'binary-tree'
         - value: ['top-down' | 'left-right' | 'diagonal' | 'alt-diagonal' | 'binary-tree']
     - padding `Number` 
-        - desc: padding between images
-        - default: 10
+        - 描述: 图片间距
+        - 默认: 10
     - convert `Number` 
-        - desc: numerical scale
-        - default: 1
+        - 描述: 数值转换
+        - 默认: 1
     - unit `String` 
-        - desc: unit of backgound-size and position
-        - default: 'px'
+        - 描述: 数值单位
+        - 默认: 'px'
     - quiet `Boolean` 
-        - desc: disabled output info in the console
-        - default: false
+        - 描述: 不在控制台输出信息
+        - 默认: false    
 
 ### `emilia.run()`
-Start compilation, include `emilia.collect` and `emilia.process`.
+开始编译流程，包括 `emilia.collect` 和 `emilia.process`。
 
 ### `emilia.collect()`
-Get stylesheet files and wrap into `file` object, prepare for compilation
+获取样式文件并将其封装为简单的 `file` 对象，为下一步编译做准备
 
 ### `emilia.process()`
-Analysises stylesheet and recognize sprite mark, creates sprite pictures with coordinates, output both sprite pictures and updated stylesheet files.
+分析样式文件并识别精灵图标识、合并精灵图片并得到坐标信息、最后输出精灵图片和更新之后的样式文件
 
-## Examples
-### single stylesheet file
+## 示例
+### 处理单个样式文件
 
 ```js
 emilia = new Emilia({
@@ -159,7 +157,7 @@ emilia.run();
 }
 ```
 
-### mulit stylesheet file
+### 处理多个样式文件
 
 ```js
 emilia = new Emilia({
@@ -170,7 +168,7 @@ emilia = new Emilia({
 emilia.run();
 ```
 
-### rem stylesheet
+### 使用 `rem` 单位
 
 ```js
 emilia = new Emilia({
@@ -188,7 +186,7 @@ emilia = new Emilia({
 emilia.run();
 ```
 
-### inline image
+### 内联图片
 
 ```css
 .icon {
@@ -196,7 +194,7 @@ emilia.run();
 }
 ```
 
-### use in CLI
+### 在 CLI 中使用
 
 ```bash
 $ emilia -s fixtures/css/main.css,fixtures/css/multi_*.css
@@ -209,7 +207,7 @@ $ emilia -s fixtures/css/main.css,fixtures/css/multi_*.css
 [info]: Created build/css/multi_two.css
 ```
 
-## Test
+## 测试
 ```bash
 $ npm run test
 ```
