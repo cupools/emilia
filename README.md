@@ -6,7 +6,7 @@ Css sprite tool, supports rem, supports output multiple sprites pictures.
 
 If you are tend to build sprite pictures according to image resources, maybe you like [Lia](https://github.com/cupools/lia).
 
-[中文文档](README.zn-CN.md)
+[中文文档](README.zh-CN.md)
 
 ## Getting started
 ```bash
