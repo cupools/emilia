@@ -1,6 +1,6 @@
 {
     "name": "emilia",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Css sprite tool, supports rem, supports output multiple sprites pictures",
     "main": "main.js",
     "bin": {
