@@ -1,6 +1,4 @@
-'use strict';
-
-import log from '../utils/log';
+import log from '../utils/log'
 
 export default function () {
     let usage = [
@@ -24,7 +22,7 @@ export default function () {
         '    --unit                 unit of backgound-size and position',
         '    --quiet                disabled output info in the console',
         ''
-    ].join('\n');
+    ].join('\n')
 
-    log(usage);
+    log(usage)
 }

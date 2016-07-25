@@ -1,3 +1,3 @@
-'use strict';
+'use strict'
 
-module.exports = require('./lib/emilia.js').default;
+module.exports = require('./lib/emilia.js').default
