@@ -212,6 +212,10 @@ $ emilia -s fixtures/css/main.css,fixtures/css/multi_*.css
 $ npm run test
 ```
 
+## 更新
+- v0.1.0
+  1. 修复了 windows 平台一个致命的Bug, 由 `child_process.execFile` 的不恰当使用导致
+
 ## License
 
 Copyright (c) 2016 cupools
