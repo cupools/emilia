@@ -45,8 +45,10 @@ class Sprite {
 }
 
 function processSprite({tag, sprites, options}) {
-    let ret = child.execFileSync(_.join(__dirname, 'spritesmith'), ['-sprites', JSON.stringify(sprites), '-options', JSON.stringify(options)])
-    let result = JSON.parse(ret.toString())
+    let ret = child.spawnSync('node', [ _.join(__dirname, 'spritesmith.js'), '-sprites', JSON.stringify(sprites), '-options', JSON.stringify(options)], {
+        encoding: 'utf8'
+    })
+    let result = JSON.parse(ret.stdout.toString())
 
     return result
 }

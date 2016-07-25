@@ -16,6 +16,8 @@ let emilia = new Emilia({
 })
 
 describe('Base Function', function() {
+    this.timeout(5000)
+
     before(function() {
         fs.emptyDirSync('test/tmp')
     })
@@ -52,7 +54,7 @@ describe('Base Function', function() {
         })
 
         it('_getImageRealpath', function() {
-            assert.equal(emilia._getImageRealpath('../image/c.png', 'css/style.css'), 'image/c.png', 'should get relative path')
+            assert.equal(emilia._getImageRealpath('../image/c.png', 'css/style.css'), path.normalize('image/c.png'), 'should get relative path')
         })
 
         it('_getResource', function() {
@@ -113,8 +115,8 @@ describe('Base Function', function() {
         })
 
         it('resolve', function() {
-            assert.ok(_.resolve('a.png').indexOf('emilia/a.png') > -1)
-            assert.ok(_.resolve('b', 'c', 'a.png').indexOf('emilia/b/c/a.png') > -1)
+            assert.ok(_.resolve('a.png').indexOf(path.normalize('emilia/a.png')) > -1)
+            assert.ok(_.resolve('b', 'c', 'a.png').indexOf(path.normalize('emilia/b/c/a.png')) > -1)
         })
 
         it('relative', function() {

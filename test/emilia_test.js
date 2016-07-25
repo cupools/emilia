@@ -10,6 +10,8 @@ let Emilia = require('../main.js')
 let emilia = null
 
 describe('Different Options', function() {
+    this.timeout(5000)
+
     describe('with single stylesheet', function() {
         before(function() {
             fs.emptyDirSync('test/tmp')
