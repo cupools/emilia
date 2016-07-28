@@ -2,12 +2,12 @@
 
 'use strict'
 
-var assert = require('assert')
-var fs = require('fs-extra')
-var postcss = require('postcss')
+let assert = require('assert')
+let fs = require('fs-extra')
+let postcss = require('postcss')
 
-var Emilia = require('../main.js')
-var emilia = null
+let Emilia = require('../main.js')
+let emilia = null
 
 describe('Different Options', function() {
     this.timeout(5000)
@@ -31,14 +31,14 @@ describe('Different Options', function() {
         })
 
         it('output stylesheet', function() {
-            var css = ''
+            let css = ''
 
             assert.doesNotThrow(function() {
                 css = fs.readFileSync('test/tmp/main.css', 'utf8')
             }, 'should output css file')
 
-            var map = getMap('main')
-            var picInfo = getPicInfo()
+            let map = getMap('main')
+            let picInfo = getPicInfo()
             postcss.parse(css).walkRules(checkStylesheet.bind(this, map, picInfo))
         })
 
@@ -69,16 +69,16 @@ describe('Different Options', function() {
         })
 
         it('output stylesheet', function() {
-            var one = ''
-            var two = ''
+            let one = ''
+            let two = ''
 
             assert.doesNotThrow(function() {
                 one = fs.readFileSync('test/tmp/multi_one.css', 'utf8')
                 two = fs.readFileSync('test/tmp/multi_two.css', 'utf8')
             }, 'should output css file')
 
-            var map = getMap('multi')
-            var picInfo = getPicInfo()
+            let map = getMap('multi')
+            let picInfo = getPicInfo()
 
             postcss.parse(one).walkRules(checkStylesheet.bind(this, map, picInfo))
             postcss.parse(two).walkRules(checkStylesheet.bind(this, map, picInfo))
@@ -116,7 +116,7 @@ describe('Different Options', function() {
         })
 
         it('output stylesheet', function() {
-            var css = ''
+            let css = ''
 
             assert.doesNotThrow(function() {
                 css = fs.readFileSync('test/tmp/rem.css', 'utf8')
@@ -124,7 +124,7 @@ describe('Different Options', function() {
 
             postcss.parse(css).walkDecls(/background/, function(decl) {
                 if (decl.prop === 'background') {
-                    var url = /url\(([\w\W]+?)\)/.exec(decl.value)[1]
+                    let url = /url\(([\w\W]+?)\)/.exec(decl.value)[1]
                     assert.equal(url, './sprite.png', 'background url should be replace correct')
                 } else if (decl.prop === 'background-size') {
                     assert.equal(decl.value, '16rem 28.5rem', 'background size should be convert correct')
@@ -142,11 +142,11 @@ describe('Different Options', function() {
 
 function checkStylesheet(map, picInfo, rule) {
     if (rule.selector.indexOf('icon') > -1) {
-        var idx = +rule.selector[5]
-        var tag = map[rule.selector].tag
+        let idx = +rule.selector[5]
+        let tag = map[rule.selector].tag
 
         rule.walkDecls(/background(-image)?$/, function(decl) {
-            var url = /url\(([\w\W]+?)\)/.exec(decl.value)[1]
+            let url = /url\(([\w\W]+?)\)/.exec(decl.value)[1]
             if (tag === 'inline') {
                 assert.ok(url.indexOf('base64') > -1, 'picture should be encode to base64')
             } else {
@@ -155,14 +155,14 @@ function checkStylesheet(map, picInfo, rule) {
         })
 
         rule.walkDecls(/background-size/, function(decl) {
-            var size = picInfo[idx]
+            let size = picInfo[idx]
             if (tag !== 'inline') {
                 assert.notEqual(decl.value, size[0] + 'px ' + size[1] + 'px', 'background size should be replace')
             }
         })
 
         rule.walkDecls(/background-position/, function() {
-            var flag = false
+            let flag = false
 
             if (tag !== 'inline') {
                 flag = true
@@ -172,14 +172,14 @@ function checkStylesheet(map, picInfo, rule) {
         })
     } else if (rule.selector.indexOf('unexist') > -1) {
         rule.walkDecls(/background(-image)?$/, function(decl) {
-            var url = /url\(([\w\W]+?)\)/.exec(decl.value)[1]
+            let url = /url\(([\w\W]+?)\)/.exec(decl.value)[1]
             assert.ok(url.indexOf('undefined') > -1, 'picture unexist should not be replace')
         })
     }
 }
 
 function getMap(type) {
-    var map = {
+    let map = {
         main: {
             '.icon0': {
                 tag: 'tom'

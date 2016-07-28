@@ -7,7 +7,7 @@
     "emilia": "./bin/emilia"
   },
   "scripts": {
-    "test": "mocha test/",
+    "test": "mocha test/ --harmony",
     "babel": "babel ./src -d ./lib/ -D -w --presets es2015"
   },
   "author": "liyh <cupools@gmail.com>",
