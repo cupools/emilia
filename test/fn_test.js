@@ -2,13 +2,13 @@
 
 'use strict'
 
-let assert = require('assert')
-let fs = require('fs-extra')
-let path = require('path')
-let _ = require('lodash')
+var assert = require('assert')
+var fs = require('fs-extra')
+var path = require('path')
+var _ = require('lodash')
 
-let Emilia = require('../main.js')
-let emilia = new Emilia({
+var Emilia = require('../main.js')
+var emilia = new Emilia({
     src: ['test/fixtures/**/!(rem).css'],
     dest: 'test/tmp/',
     output: 'test/tmp/',
@@ -30,7 +30,7 @@ describe('Base Function', function() {
         })
 
         it('_traverseFilter', function() {
-            let rt = [{
+            var rt = [{
                 prop: 'background',
                 value: 'url(a/b/c.png?__test)'
             }, {
@@ -67,7 +67,7 @@ describe('Base Function', function() {
     })
 
     describe('file.js', function() {
-        let File = require('../lib/file.js').default
+        var File = require('../lib/file.js').default
 
         it('getFile', function() {
             assert.ok(File.getFile('tom').content, 'should get right file object')
@@ -75,8 +75,8 @@ describe('Base Function', function() {
         })
 
         it('getStyles', function() {
-            let styles = File.getStyles()
-            let len = 0
+            var styles = File.getStyles()
+            var len = 0
 
             _.forIn(styles, function(file) {
                 assert.equal(file.type, 'STYLE', 'style file should be `STYLE` type')
@@ -88,8 +88,8 @@ describe('Base Function', function() {
         })
 
         it('getSprites', function() {
-            let styles = File.getSprites()
-            let len = 0
+            var styles = File.getSprites()
+            var len = 0
 
             _.forIn(styles, function(file) {
                 assert.equal(file.type, 'SPRITE', 'sprite file shoud be `SPRITE` type')
@@ -102,7 +102,7 @@ describe('Base Function', function() {
     })
 
     describe('utils/util.js', function() {
-        let _ = require('../lib/utils/util').default
+        var _ = require('../lib/utils/util').default
 
         it('basename', function() {
             assert.equal(_.basename('/a/c/v/a.png'), 'a.png')
