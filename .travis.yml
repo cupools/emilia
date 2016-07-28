@@ -3,3 +3,7 @@ node_js:
   - "4.4"
   - "4.3.1"
   - "0.12"
+cache:
+  bundler: true
+  directories:
+  - node_modules
