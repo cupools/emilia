@@ -1,4 +1,4 @@
-/* global describe,it,before */
+/* eslint-env mocha */
 
 'use strict'
 
