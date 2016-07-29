@@ -1,4 +1,5 @@
 ## Emilia
+[![Build Status](https://travis-ci.org/cupools/emilia.svg?branch=master)](https://travis-ci.org/cupools/emilia)
 
 Css sprite tool, supports rem, supports output multiple sprites pictures.
 

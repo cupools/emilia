@@ -1,4 +1,5 @@
 ## Emilia
+[![Build Status](https://travis-ci.org/cupools/emilia.svg?branch=master)](https://travis-ci.org/cupools/emilia)
 
 Sprite 工具，支持 `rem`，支持输出多套精灵图片。
 
