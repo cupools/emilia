@@ -7,7 +7,7 @@
     "emilia": "./bin/emilia"
   },
   "scripts": {
-    "test": "mocha test/ --require babel-core/register",
+    "test": "node node_modules/mocha/bin/mocha test/ --compilers js:babel-core/register",
     "babel": "babel ./src -d ./lib/ -D -w --presets es2015"
   },
   "author": "liyh <cupools@gmail.com>",
