@@ -216,8 +216,10 @@ $ npm run test
 ```
 
 ## Update
+- v0.1.1
+  1. Update for node v0.12 support
 - v0.1.0
-  1. fix fatal bug in windows cause by incorrect usage of `child_process.execFile`
+  1. Fix fatal bug in windows cause by incorrect usage of `child_process.execFile`
 
 ## License
 

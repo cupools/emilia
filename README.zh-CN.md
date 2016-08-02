@@ -214,6 +214,8 @@ $ npm run test
 ```
 
 ## 更新
+- v0.1.1
+  1. 兼容 node v0.12
 - v0.1.0
   1. 修复了 windows 平台一个致命的Bug, 由 `child_process.execFile` 的不恰当使用导致
 
