@@ -1,5 +1,5 @@
-import child from 'child_process'
 import _ from './utils/util'
+import image from './image'
 
 let asserts = {}
 let cache = {}
@@ -45,12 +45,7 @@ class Sprite {
 }
 
 function processSprite({tag, sprites, options}) {
-    let ret = child.spawnSync('node', [ _.join(__dirname, 'spritesmith.js'), '-sprites', JSON.stringify(sprites), '-options', JSON.stringify(options)], {
-        encoding: 'utf8'
-    })
-    let result = JSON.parse(ret.stdout.toString())
-
-    return result
+    return image.process(sprites, options)
 }
 
 function shouldRebuild() {
