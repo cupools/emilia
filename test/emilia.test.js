@@ -1,254 +1,91 @@
 /* eslint-env mocha */
-'use strict'
+import { expect } from 'chai'
+import fs from 'fs-extra'
 
-let assert = require('assert')
-let fs = require('fs-extra')
-let postcss = require('postcss')
+import './css-plugin'
+import Emilia from '../src/emilia'
 
-let Emilia = require('../main.js')
-let emilia = null
-
-describe('Different Options', function() {
-    this.timeout(5000)
-
-    describe('with single stylesheet', function() {
-        before(function() {
-            fs.emptyDirSync('test/tmp')
-        })
-
-        it('#run()', function() {
-            assert.doesNotThrow(function() {
-                emilia = new Emilia({
-                    src: ['test/fixtures/css/main.css'],
-                    dest: 'test/tmp/',
-                    output: 'test/tmp/',
-                    cssPath: '../images/',
-                    quiet: true
-                })
-                emilia.run()
-            }, 'should run without exception')
-        })
-
-        it('output stylesheet', function() {
-            let css = ''
-
-            assert.doesNotThrow(function() {
-                css = fs.readFileSync('test/tmp/main.css', 'utf8')
-            }, 'should output css file')
-
-            let map = getMap('main')
-            let picInfo = getPicInfo()
-            postcss.parse(css).walkRules(checkStylesheet.bind(this, map, picInfo))
-        })
-
-        it('output sprite', function() {
-            assert.doesNotThrow(function() {
-                fs.statSync('test/tmp/sprite-tom.png')
-                fs.statSync('test/tmp/sprite-jerry.png')
-            }, 'should output sprite file')
-        })
+describe('Emilia', function() {
+    beforeEach(function() {
+        fs.emptyDirSync('test/tmp')
     })
 
-    describe('with multi stylesheet', function() {
-        before(function() {
-            fs.emptyDirSync('test/tmp')
+    it('should work with default options', function() {
+        let emilia = new Emilia({
+            src: ['test/fixtures/css/main.css'],
+            dest: 'test/tmp/',
+            output: 'test/tmp/',
+            cssPath: './',
+            prefix: '',
+            algorithm: 'left-right',
+            padding: 100,
+            unit: 'px',
+            convert: 1,
+            quiet: true
         })
 
-        it('#run()', function() {
-            assert.doesNotThrow(function() {
-                emilia = new Emilia({
-                    src: ['test/fixtures/css/multi_*.css'],
-                    dest: 'test/tmp/',
-                    output: 'test/tmp/',
-                    cssPath: '../images/',
-                    quiet: true
-                })
-                emilia.run()
-            }, 'should run without exception')
-        })
+        expect(emilia.run.bind(emilia)).to.not.throw(Error)
 
-        it('output stylesheet', function() {
-            let one = ''
-            let two = ''
-
-            assert.doesNotThrow(function() {
-                one = fs.readFileSync('test/tmp/multi_one.css', 'utf8')
-                two = fs.readFileSync('test/tmp/multi_two.css', 'utf8')
-            }, 'should output css file')
-
-            let map = getMap('multi')
-            let picInfo = getPicInfo()
-
-            postcss.parse(one).walkRules(checkStylesheet.bind(this, map, picInfo))
-            postcss.parse(two).walkRules(checkStylesheet.bind(this, map, picInfo))
-        })
-
-        it('output sprite', function() {
-            assert.doesNotThrow(function() {
-                fs.statSync('test/tmp/sprite-tom.png')
-                fs.statSync('test/tmp/sprite-jerry.png')
-            }, 'should output sprite file')
-        })
-    })
-
-    describe('with rem stylesheet', function() {
-        before(function() {
-            fs.emptyDirSync('test/tmp')
-        })
-
-        it('#run()', function() {
-            assert.doesNotThrow(function() {
-                emilia = new Emilia({
-                    src: ['test/fixtures/css/rem.css'],
-                    dest: 'test/tmp/',
-                    output: 'test/tmp/',
-                    cssPath: './',
-                    prefix: '',
-                    algorithm: 'top-down',
-                    padding: 100,
-                    unit: 'rem',
-                    convert: 16,
-                    quiet: true
-                })
-                emilia.run()
-            }, 'should run without exception')
-        })
-
-        it('output stylesheet', function() {
-            let css = ''
-
-            assert.doesNotThrow(function() {
-                css = fs.readFileSync('test/tmp/rem.css', 'utf8')
-            }, 'should output css file')
-
-            postcss.parse(css).walkDecls(/background/, function(decl) {
-                if (decl.prop === 'background') {
-                    let url = /url\(([\w\W]+?)\)/.exec(decl.value)[1]
-                    assert.equal(url, './sprite.png', 'background url should be replace correct')
-                } else if (decl.prop === 'background-size') {
-                    assert.equal(decl.value, '16rem 28.5rem', 'background size should be convert correct')
-                }
+        expect('test/tmp/tom.png').to.be.exist
+        expect('test/tmp/jerry.png').to.be.exist
+        expect('test/tmp/main.css').to
+            .have.selector('.icon0').and.decl({
+                background: '#ccc url(\'./tom.png\') no-repeat',
+                'background-position': '0px 0px',
+                'background-size': '1324px 256px'
             })
+            .and.have.selector('.icon1').and.decl({
+                background: 'url(\'./tom.png\') no-repeat',
+                'background-position': '-356px 0px',
+                'background-size': '1324px 256px'
+            })
+            .and.have.selector('.icon2').and.decl({
+                background: 'url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAMAAABHPGVmAAAAXVBMVEUAAAD5vzv5vzv5vzv5vzv5vzv5vzv5vzv5vzv5vzv5vzv5vzv5vzv5vzv5vzv+//760H35w07+/PX98Nn84a/6zG/99OP87M/85br6yF/9+Oz86MX72Jf73aP71IsXwEBZAAAADnRSTlMA3lT4jAas5FsD2KZcB+crwqIAAAF4SURBVGje7dpbc4IwEIbhAIKndgk5gCD6/39mSRhDm+pdvkwP+97t1TOJwozjCl9dnouKEledzmUtQmVBoIpSrB13BGx39AjICIq/KwJXClHvCdy+FgeC9yYagteIguAVoiJ4laAMMcJIiBFGGGGEkX+NSJelUHLEmr5dU8O8zABk9kJokukRo9q4S3Kk9Q1GylHKi1oVAKLM+Jg64xmZHDHd59k6ZUiM6JG+dmuXOgI/jCq6Lwii/wwyZUBkjg9eA77CcQbwMMbNiNfKsyex78IMQLohMgCInSIDgJj1NR8MADJqR6j7Y0Ygd+WMIRwDgHTX6BgAZP3EdTgGAjH+GLcwI5CLM/oxzAhkdsaVQgjERgYE6SMDgPjL0rQFQaYFGWkLgdjosiDIbUEsbUGQYUHks1Iiun0RI8+y8kW09dt+YjPyLUYYYYQRRhj5mUiWP/1PBK/IsoiRZaUkx3LMe541H/zCUqbVK/wSWag+NIB1uKI51ML1AXQdIgBlF32qAAAAAElFTkSuQmCC\') no-repeat'
+            })
+            .and.have.selector('.icon6').and.decl({
+                background: 'url(\'./jerry.png\') no-repeat',
+                'background-position': '0px 0px',
+                'background-size': '650px 300px'
+            })
+            .and.have.selector('.unexist').and.decl({
+                background: 'url(\'../images/undefined.png\') no-repeat',
+                'background-position': undefined,
+                'background-size': '100px 100px'
+            })
+            .and.have.selector('.unexist-inline').and.decl({
+                background: 'url(\'../images/undefined.png\') no-repeat',
+                'background-position': undefined,
+                'background-size': '100px 100px'
+            })
+    })
+
+    it('should work with empty `src`', function() {
+        let emilia = new Emilia({
+            src: [],
+            dest: 'test/tmp/',
+            output: 'test/tmp/',
+            quiet: true
         })
 
-        it('output sprite', function() {
-            assert.doesNotThrow(function() {
-                fs.statSync('test/tmp/sprite.png')
-            }, 'should output sprite file')
+        expect(emilia.run.bind(emilia)).to.not.throw(Error)
+
+        expect('test/tmp/main.css').to.not.be.exist
+        expect('test/tmp/tom.png').to.not.be.exist
+        expect('test/tmp/jerry.png').to.not.be.exist
+    })
+
+    it('should work with empty `dest`', function() {
+        let emilia = new Emilia({
+            src: ['test/fixtures/css/main.css'],
+            dest: '',
+            output: 'test/tmp/',
+            quiet: true
         })
+
+        expect(emilia.run.bind(emilia)).to.not.throw(Error)
+
+        expect('test/tmp/main.css').to.not.be.exist
+        expect('test/tmp/tom.png').to.not.be.exist
+        expect('test/tmp/jerry.png').to.not.be.exist
     })
 })
-
-function checkStylesheet(map, picInfo, rule) {
-    if (rule.selector.indexOf('icon') > -1) {
-        let idx = +rule.selector[5]
-        let tag = map[rule.selector].tag
-
-        rule.walkDecls(/background(-image)?$/, function(decl) {
-            let url = /url\(([\w\W]+?)\)/.exec(decl.value)[1]
-            if (tag === 'inline') {
-                assert.ok(url.indexOf('base64') > -1, 'picture should be encode to base64')
-            } else {
-                assert.equal(url, '../images/sprite-' + tag + '.png', 'background url should be replace correct')
-            }
-        })
-
-        rule.walkDecls(/background-size/, function(decl) {
-            let size = picInfo[idx]
-            if (tag !== 'inline') {
-                assert.notEqual(decl.value, size[0] + 'px ' + size[1] + 'px', 'background size should be replace')
-            }
-        })
-
-        rule.walkDecls(/background-position/, function() {
-            let flag = false
-
-            if (tag !== 'inline') {
-                flag = true
-            }
-
-            assert.ok(flag || tag === 'inline', 'background position should be append base on inline')
-        })
-    } else if (rule.selector.indexOf('unexist') > -1) {
-        rule.walkDecls(/background(-image)?$/, function(decl) {
-            let url = /url\(([\w\W]+?)\)/.exec(decl.value)[1]
-            assert.ok(url.indexOf('undefined') > -1, 'picture unexist should not be replace')
-        })
-    }
-}
-
-function getMap(type) {
-    let map = {
-        main: {
-            '.icon0': {
-                tag: 'tom'
-            },
-            '.icon1': {
-                tag: 'tom'
-            },
-            '.icon2': {
-                tag: 'inline'
-            },
-            '.icon3': {
-                tag: 'tom'
-            },
-            '.icon4': {
-                tag: 'tom'
-            },
-            '.icon5': {
-                tag: 'jerry'
-            },
-            '.icon6': {
-                tag: 'jerry'
-            },
-            '.icon7': {
-                tag: 'inline'
-            }
-        },
-        multi: {
-            '.icon0': {
-                tag: 'tom'
-            },
-            '.icon1': {
-                tag: 'tom'
-            },
-            '.icon2': {
-                tag: 'tom'
-            },
-            '.icon3': {
-                tag: 'tom'
-            },
-            '.icon4': {
-                tag: 'tom'
-            },
-            '.icon5': {
-                tag: 'jerry'
-            },
-            '.icon6': {
-                tag: 'jerry'
-            },
-            '.icon7': {
-                tag: 'jerry'
-            }
-        },
-        rem: {
-            '.icon0': {
-                tag: 'tom'
-            }
-        }
-    }
-    return map[type || 'main']
-}
-
-function getPicInfo() {
-    return {
-        '0': [128, 128],
-        '1': [128, 128],
-        '2': [50, 50],
-        '3': [128, 128],
-        '4': [128, 128],
-        '5': [200, 75],
-        '6': [75, 150],
-        '7': [100, 100]
-    }
-}

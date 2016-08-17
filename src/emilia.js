@@ -48,7 +48,7 @@ class Emilia {
     }
 
     _initStyle() {
-        this._getResource().map(p => {
+        this._getResource().forEach(p => {
             let f = this.initStyle(p)
             this._handleStyle(f)
         })
@@ -167,7 +167,7 @@ class Emilia {
             })
 
             url = sprite.url || `${opt.cssPath}${opt.prefix}${tag}.png`
-            decl.value = decl.value.replace(urlReg, `url(${url})`)
+            decl.value = decl.value.replace(urlReg, `url('${url}')`)
 
             let parent = decl.parent
 
@@ -188,7 +188,7 @@ class Emilia {
         let outputRealpath = _.resolve(outputPath)
 
         if (_.exists(outputRealpath)) {
-            outputPath = _.join(opt.dest, opt.prefix + name)
+            outputPath = _.join(opt.dest, name)
             outputRealpath = _.resolve(outputPath)
         }
 
@@ -199,7 +199,7 @@ class Emilia {
     outputSprite(file) {
         let opt = this.options
         let name = file.id
-        let outputPath = _.resolve(opt.output, opt.prefix + name + '.png')
+        let outputPath = _.resolve(opt.output, name + '.png')
 
         fs.outputFileSync(outputPath, file.content, 'binary')
         log.build(file.path)
@@ -211,9 +211,9 @@ class Emilia {
 
     _getResource() {
         let styles = []
-        let opt = this.options
+        let {src} = this.options
 
-        opt.src.map(f => {
+        src.forEach(f => {
             styles.push(...glob.sync(f))
         })
 

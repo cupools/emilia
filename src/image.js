@@ -1,7 +1,7 @@
 import Images from 'images'
 import layout from './utils/layout'
 
-const INFINITE = 10e5
+const INFINITE = 10e9
 
 export default {
     process(files, options) {
