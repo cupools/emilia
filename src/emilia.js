@@ -39,6 +39,7 @@ class Emilia {
         File.clear()
         sprite.save()
         this._initStyle()
+        // css.badge()
     }
 
     process() {
@@ -49,8 +50,7 @@ class Emilia {
 
     _initStyle() {
         this._getResource().forEach(p => {
-            let f = this.initStyle(p)
-            this._handleStyle(f)
+            // let f = this.initStyle(p)
         })
     }
 
@@ -63,42 +63,6 @@ class Emilia {
             type: 'STYLE',
             content: fs.readFileSync(realpath, 'utf8')
         })
-    }
-
-    _handleStyle(file) {
-        let processor = postcss()
-        processor.use(this._walkDecls.bind(this, file))
-        file.content = processor.process(file.content).css
-    }
-
-    _walkDecls(file, css) {
-        css.walkDecls(this._traverseFilter(file, (decl, file, group) => {
-            let url = group[1]
-            let tag = group[3]
-            let realpath = this._getImageRealpath(url, file.realpath)
-            let stat = _.statSync(realpath)
-
-            if (stat) {
-                if (tag !== inlineTag) {
-                    sprite.add(tag, realpath, stat.mtime)
-                }
-            } else {
-                decl.value = decl.value.replace(/\?__\w+/, '')
-                log.warn(url + ' not exists')
-            }
-        }))
-    }
-
-    _traverseFilter(file, callback) {
-        return function(decl) {
-            if (decl.prop.indexOf('background') !== -1) {
-                let group = urlReg.exec(decl.value)
-
-                if (group && group[2]) {
-                    callback(decl, file, group)
-                }
-            }
-        }
     }
 
     _buildSprite() {
@@ -132,53 +96,7 @@ class Emilia {
         let processor = postcss()
         let styles = File.getStyles()
 
-        _.forIn(styles, file => {
-            processor.use(this._updateDecls.bind(this, file))
-            file.content = processor.process(file.content).css
-
-            this.outputStyle(file)
-        })
-    }
-
-    _updateDecls(file, css) {
-        let opt = this.options
-
-        css.walkDecls(this._traverseFilter(file, (decl, file, group) => {
-            let url = group[1]
-            let tag = group[3]
-            let realpath = this._getImageRealpath(url, file.realpath)
-
-            if (tag === inlineTag) {
-                let encode = this._encode(realpath)
-                decl.value = decl.value.replace(replaceUrlReg, `$1${encode}$3`)
-                return
-            }
-
-            let sprite = File.getFile(tag)
-            let meta = sprite.meta
-            let chip = meta.coordinates[realpath]
-            let pos = postcss.decl({
-                prop: 'background-position',
-                value: `${-chip.x / opt.convert}${opt.unit} ${-chip.y / opt.convert}${opt.unit}`
-            })
-            let size = postcss.decl({
-                prop: 'background-size',
-                value: `${meta.width / opt.convert}${opt.unit} ${meta.height / opt.convert}${opt.unit}`
-            })
-
-            url = sprite.url || `${opt.cssPath}${opt.prefix}${tag}.png`
-            decl.value = decl.value.replace(urlReg, `url('${url}')`)
-
-            let parent = decl.parent
-
-            parent.walkDecls(decl => {
-                if (declFilter.test(decl.prop)) {
-                    decl.remove()
-                }
-            })
-            parent.append(pos)
-            parent.append(size)
-        }))
+        // css.process
     }
 
     outputStyle(file) {

@@ -8,9 +8,7 @@ let log = function(msg) {
 }
 
 log.console = function(msg) {
-    if (!quiet) {
-        console.log(msg)
-    }
+    process.env.NODE_ENV !== 'test' && !quiet && console.log(msg)
 }
 
 log.info = function(msg) {
@@ -27,7 +25,7 @@ log.error = function(msg) {
 
 log.build = function(msg) {
     let format = path.join('.', msg)
-    log.info('Created ' + colors.green(format))
+    log.info('Create ' + colors.green(format))
 }
 
 log.trigger = function(stat) {

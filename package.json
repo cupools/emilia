@@ -20,7 +20,7 @@
     "images": "^3.0.0",
     "layout": "^2.2.0",
     "lodash": "^4.13.1",
-    "postcss": "^5.0.21"
+    "postcss": "^5.1.2"
   },
   "devDependencies": {
     "assert": "^1.4.1",

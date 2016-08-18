@@ -1,4 +1,5 @@
 import Images from 'images'
+import fs from 'fs-extra'
 import layout from './utils/layout'
 
 const INFINITE = 10e9
@@ -58,5 +59,11 @@ export default {
             coordinates,
             properties
         }
+    },
+    encode(realpath) {
+        let base64 = fs.readFileSync(realpath, {
+            encoding: 'base64'
+        })
+        return `data:image/png;base64,${base64}`
     }
 }

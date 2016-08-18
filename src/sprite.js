@@ -14,6 +14,7 @@ class Sprite {
         this.stamp = ''
     }
 
+    // read picture and return operation result
     add(realpath, stamp) {
         if (this.dependences.indexOf(realpath) === -1) {
             this.dependences.push(realpath)
