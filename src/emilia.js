@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 import glob from 'glob'
 import postcss from 'postcss'
 import _ from 'lodash'
+import path from 'path'
 
 import store from './store'
 import css from './css'
@@ -29,11 +30,17 @@ class Emilia {
     }
 
     run() {
-        this.collect()
-        this.process()
+        let cssMap = this.collect()
+        let spriteMap = this.pack(cssMap)
+
+        console.log(spriteMap)
+
+        // return this.process(map)
     }
 
     collect() {
+        let {store} = this
+
         this._getResource().forEach(subpath => {
             let realpath = io.realpath(subpath)
             let content = io.read(realpath)
@@ -44,10 +51,48 @@ class Emilia {
                 realpath,
                 content,
                 stamp
-            })
+            }, 'STYLE')
         })
 
-        css.badge(store.style)
+        return css.badge(store.styles)
+    }
+
+    pack(cssMap) {
+        let {store} = this
+
+        return Object.keys(cssMap).reduce((ret, realpath) => {
+            let tags = cssMap[realpath]
+
+            return Object.keys(tags).reduce((ret, tag) => {
+                let urls = tags[tag]
+
+                urls.forEach(url => {
+                    let imageRealpath = path.resolve(realpath, '..', url)
+                    let content = io.read(imageRealpath, 'buffer')
+
+                    if (!content) {
+                        log.error(`\`${url}\` not found`)
+                        return ret
+                    }
+
+                    let subpath = io.subpath(realpath)
+                    let stamp = content.length
+
+                    store.add({
+                        subpath,
+                        realpath,
+                        content,
+                        stamp,
+                        url
+                    }, 'IMAGE')
+
+                    ret[tag] = ret[tag] || []
+                    ret[tag].indexOf(imageRealpath) === -1 && ret[tag].push(imageRealpath)
+                })
+
+                return ret
+            }, ret)
+        }, {})
     }
 
     process() {

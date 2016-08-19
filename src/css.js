@@ -1,5 +1,4 @@
 import postcss from 'postcss'
-import sprite from './sprite'
 import image from './image'
 
 const INLINE = 'inline'
@@ -12,7 +11,8 @@ const DECL_REMOVE_REG = /(-webkit-)?background-(size|repeat)/
  */
 export default {
     badge(files) {
-        return files.reduce((ret, file) => {
+        return Object.keys(files).reduce((ret, realpath) => {
+            let file = files[realpath]
             return postcss(badge.bind(null, ret, file)).process(file.content).css && ret
         }, {})
     },
