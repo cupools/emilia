@@ -12,14 +12,9 @@ const DECL_REMOVE_REG = /(-webkit-)?background-(size|repeat)/
  */
 export default {
     badge(files) {
-        let ret = {}
-        let processor = postcss(root => {
-            badge(root, ret)
-        })
-
-        files.forEach(file => {
-            file.content = processor.process(file.content).css
-        })
+        return files.reduce((ret, file) => {
+            return postcss(badge.bind(null, ret, file)).process(file.content).css && ret
+        }, {})
     },
     process(files, options) {
         let processor = postcss(process.bind(null, options))
@@ -33,20 +28,14 @@ export default {
     }
 }
 
-function badge(root, ret) {
+function badge(ret, file, root) {
     root.walkDecls(/background/, decl => {
         let [, url, flag, tag] = URL_REG.exec(decl.value) || []
 
-        if (!flag) {
-            return
-        }
-
-        if (url && tag) {
-            if (!ret[tag]) {
-                ret[tag] = []
-            }
-
-            ret[tag].push(url)
+        if (flag && url && tag) {
+            let f = ret[file.realpath] = ret[file.realpath] || {}
+            f[tag] = f[tag] || []
+            f[tag].push(url)
         }
     })
 }
@@ -91,5 +80,5 @@ function process(options, root) {
         })
         parent.append(pos)
         parent.append(size)
-    }))
+    })
 }

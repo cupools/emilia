@@ -1,8 +1,7 @@
 import path from 'path'
 import fs from 'fs-extra'
-import * as lodash from 'lodash'
 
-export default Object.assign(lodash, {
+export default {
     basename(p) {
         return path.basename(p)
     },
@@ -30,4 +29,4 @@ export default Object.assign(lodash, {
         }
         return ret
     }
-})
+}

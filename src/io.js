@@ -1,11 +1,14 @@
+import path from 'path'
+import fs from 'fs-extra'
+
 export default {
-    read() {
-
+    read(realpath, encode = 'utf8') {
+        return fs.readFileSync(realpath, encode)
     },
-    write() {
-
+    write(realpath, encode = 'utf8') {
+        return fs.writeFileSync(realpath, encode)
     },
-    realpath() {
-
+    realpath(subpath) {
+        return path.resolve(process.cwd(), subpath)
     }
 }

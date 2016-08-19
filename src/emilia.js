@@ -1,15 +1,13 @@
 import fs from 'fs-extra'
 import glob from 'glob'
 import postcss from 'postcss'
-import log from './utils/log'
-import _ from './utils/util'
-import File from './file'
-import sprite from './sprite'
+import _ from 'lodash'
 
-const urlReg = /(?:url\s?\(['"]?([\w\W]+?)(?:\?(__)?([\w\d\-_]+?))?['"]?\))/
-const replaceUrlReg = /(url\s?\(['"]?)([\w\W]+?)(['"]?\))/
-const declFilter = /(-webkit-)?background-(size|repeat)/
-const inlineTag = 'inline'
+import store from './store'
+import css from './css'
+import sprite from './sprite'
+import io from './io'
+import log from './utils/log'
 
 class Emilia {
     constructor(options) {
@@ -26,7 +24,7 @@ class Emilia {
             quiet: false
         }, options)
 
-        this.File = File
+        this.store = store.create()
         log.trigger(this.options.quiet)
     }
 
@@ -36,33 +34,26 @@ class Emilia {
     }
 
     collect() {
-        File.clear()
-        sprite.save()
-        this._initStyle()
-        // css.badge()
+        this._getResource().forEach(subpath => {
+            let realpath = io.realpath(subpath)
+            let content = io.read(realpath)
+            let stamp = content.length
+
+            store.add({
+                subpath,
+                realpath,
+                content,
+                stamp
+            })
+        })
+
+        css.badge(store.style)
     }
 
     process() {
         this._buildSprite()
         this._outputSprite()
         this._outputStyle()
-    }
-
-    _initStyle() {
-        this._getResource().forEach(p => {
-            // let f = this.initStyle(p)
-        })
-    }
-
-    initStyle(path) {
-        let realpath = _.resolve(path)
-
-        return File.wrap({
-            path,
-            realpath,
-            type: 'STYLE',
-            content: fs.readFileSync(realpath, 'utf8')
-        })
     }
 
     _buildSprite() {
@@ -88,14 +79,13 @@ class Emilia {
     }
 
     _outputSprite() {
-        let sprites = File.getSprites()
+        let sprites = store.sprite
         _.forIn(sprites, file => this.outputSprite(file))
     }
 
     _outputStyle() {
         let processor = postcss()
-        let styles = File.getStyles()
-
+        let styles = store.styles
         // css.process
     }
 
@@ -123,26 +113,11 @@ class Emilia {
         log.build(file.path)
     }
 
-    _getImageRealpath(url, stylePath) {
-        return _.join(stylePath, '../', url)
-    }
-
     _getResource() {
-        let styles = []
         let {src} = this.options
-
-        src.forEach(f => {
-            styles.push(...glob.sync(f))
-        })
+        let styles = src.reduce((ret, pattern) => ret.push(...glob.sync(pattern)) && ret, [])
 
         return _.uniq(styles)
-    }
-
-    _encode(realpath) {
-        let base64 = fs.readFileSync(realpath, {
-            encoding: 'base64'
-        })
-        return `data:image/png;base64,${base64}`
     }
 }
 
