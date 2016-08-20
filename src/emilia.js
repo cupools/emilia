@@ -2,7 +2,7 @@ import glob from 'glob'
 import _ from 'lodash'
 import path from 'path'
 
-import store from './store'
+import Store from './store'
 import css from './css'
 import io from './io'
 import log from './utils/log'
@@ -24,7 +24,7 @@ class Emilia {
             quiet: false
         }, options)
 
-        this.store = store.create()
+        this.store = Store.create()
         log.trigger(this.options.quiet)
     }
 
@@ -75,20 +75,29 @@ class Emilia {
     }
 
     process(spriteMap) {
-        let opt = this.options
-        let {dest, prefix, padding, algorithm} = opt
+        let {dest, prefix, padding, algorithm, cssPath} = this.options
+        let {store} = this
 
         Object.keys(spriteMap).forEach(tag => {
             let dependence = spriteMap[tag]
             let basename = prefix + tag + '.png'
-            let realpath = path.resolve(process.cwd(), dest, basename)
+            let realpath = path.resolve(dest, basename)
 
             let sprite = new Sprite(realpath, tag, dependence, {
                 padding,
-                algorithm
+                algorithm,
+                cssPath
             })
 
-            sprite.build()
+            // cache only sprite
+            let old = Store.fromCache(realpath)
+            if (old && old.stamp === sprite.stamp) {
+                store.add(old)
+            } else {
+                sprite.build()
+                store.add(sprite)
+                Store.cache(sprite)
+            }
         })
     }
 

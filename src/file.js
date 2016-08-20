@@ -1,5 +1,6 @@
 import io from './io'
 import image from './image'
+import path from 'path'
 
 class File {
     constructor({realpath, type}) {
@@ -45,6 +46,7 @@ class Sprite {
 
         this.tag = tag
         this.dependences = dependences
+        this.url = options.cssPath + path.basename(realpath)
         this.options = options
         this.stamp = dependences.reduce((ret, file) => (ret += file.stamp), '')
         this.properties = null
@@ -58,6 +60,8 @@ class Sprite {
         this.coordinates = ret.coordinates
         this.properties = ret.properties
         this.content = ret.image
+
+        return this
     }
 
     save() {
