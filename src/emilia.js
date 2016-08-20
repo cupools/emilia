@@ -1,6 +1,4 @@
-import fs from 'fs-extra'
 import glob from 'glob'
-import postcss from 'postcss'
 import _ from 'lodash'
 import path from 'path'
 
