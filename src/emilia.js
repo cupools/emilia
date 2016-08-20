@@ -10,6 +10,8 @@ import sprite from './sprite'
 import io from './io'
 import log from './utils/log'
 
+import { Style, Image, Sprite } from './file'
+
 class Emilia {
     constructor(options) {
         this.options = Object.assign({
@@ -33,9 +35,7 @@ class Emilia {
         let cssMap = this.collect()
         let spriteMap = this.pack(cssMap)
 
-        console.log(spriteMap)
-
-        // return this.process(map)
+        this.process()
     }
 
     collect() {
@@ -43,15 +43,8 @@ class Emilia {
 
         this._getResource().forEach(subpath => {
             let realpath = io.realpath(subpath)
-            let content = io.read(realpath)
-            let stamp = content.length
-
-            store.add({
-                subpath,
-                realpath,
-                content,
-                stamp
-            }, 'STYLE')
+            let style = new Style(realpath)
+            store.add(style)
         })
 
         return css.badge(store.styles)
@@ -62,29 +55,18 @@ class Emilia {
 
         return Object.keys(cssMap).reduce((ret, realpath) => {
             let tags = cssMap[realpath]
-
             return Object.keys(tags).reduce((ret, tag) => {
                 let urls = tags[tag]
-
                 urls.forEach(url => {
                     let imageRealpath = path.resolve(realpath, '..', url)
-                    let content = io.read(imageRealpath, 'buffer')
+                    let image = new Image(imageRealpath, url)
 
-                    if (!content) {
+                    if (!image.content) {
                         log.error(`\`${url}\` not found`)
-                        return ret
+                        return
                     }
 
-                    let subpath = io.subpath(realpath)
-                    let stamp = content.length
-
-                    store.add({
-                        subpath,
-                        realpath,
-                        content,
-                        stamp,
-                        url
-                    }, 'IMAGE')
+                    store.add(image)
 
                     ret[tag] = ret[tag] || []
                     ret[tag].indexOf(imageRealpath) === -1 && ret[tag].push(imageRealpath)
@@ -131,7 +113,7 @@ class Emilia {
     _outputStyle() {
         let processor = postcss()
         let styles = store.styles
-        // css.process
+    // css.process
     }
 
     outputStyle(file) {

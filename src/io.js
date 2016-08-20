@@ -4,7 +4,7 @@ import fs from 'fs-extra'
 export default {
     read(realpath, encode = 'utf8') {
         try {
-            return fs.readFileSync(realpath, encode === 'buffer' ? undefined : encode)
+            return fs.readFileSync(realpath, encode === 'binary' ? undefined : encode)
         } catch (e) {}
         return null
     },

@@ -3,9 +3,9 @@ let Storage = {
         style: {},
         image: {}
     },
-    add(item, type) {
-        let t = type.toLowerCase()
-        return this.storage[t] && (this.storage[t][item.realpath] = item)
+    add(file) {
+        let t = file.type.toLowerCase()
+        return this.storage[t] && (this.storage[t][file.realpath] = file)
     },
     get(realpath) {
         return this.storage.style[realpath] || this.storage.image[realpath] || null

@@ -1,4 +1,3 @@
-import _ from './utils/util'
 import image from './image'
 
 let asserts = {}
