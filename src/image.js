@@ -1,16 +1,21 @@
 import Images from 'images'
-import fs from 'fs-extra'
 import layout from './utils/layout'
 
 const INFINITE = 10e9
 
 export default {
+    /**
+     * build sprite images
+     * @param  {Array} files   buffer of images
+     * @param  {Object} options padding & algorithm
+     * @return {Object}         coordinates & size
+     */
     process(files, options) {
         let {padding, algorithm} = options
         let layer = layout(algorithm)
 
-        files.map(file => {
-            let img = Images(file)
+        files.forEach(file => {
+            let img = Images(file.content)
             let size = img.size()
             let meta = {
                 file,
@@ -39,13 +44,13 @@ export default {
             height
         }
 
-        items.map(item => {
+        items.forEach(item => {
             let {file, img, x, y, width, height} = item
 
             width -= padding
             height -= padding
 
-            coordinates[file] = {
+            coordinates[file.realpath] = {
                 width,
                 height,
                 x,
@@ -60,10 +65,7 @@ export default {
             properties
         }
     },
-    encode(realpath) {
-        let base64 = fs.readFileSync(realpath, {
-            encoding: 'base64'
-        })
-        return `data:image/png;base64,${base64}`
+    encode(buffer) {
+        return buffer.toString('base64')
     }
 }

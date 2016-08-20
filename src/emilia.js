@@ -6,7 +6,6 @@ import path from 'path'
 
 import store from './store'
 import css from './css'
-import sprite from './sprite'
 import io from './io'
 import log from './utils/log'
 
@@ -35,7 +34,7 @@ class Emilia {
         let cssMap = this.collect()
         let spriteMap = this.pack(cssMap)
 
-        this.process()
+        this.process(spriteMap)
     }
 
     collect() {
@@ -69,7 +68,7 @@ class Emilia {
                     store.add(image)
 
                     ret[tag] = ret[tag] || []
-                    ret[tag].indexOf(imageRealpath) === -1 && ret[tag].push(imageRealpath)
+                    ret[tag].indexOf(image) === -1 && ret[tag].push(image)
                 })
 
                 return ret
@@ -77,67 +76,22 @@ class Emilia {
         }, {})
     }
 
-    process() {
-        this._buildSprite()
-        this._outputSprite()
-        this._outputStyle()
-    }
-
-    _buildSprite() {
+    process(spriteMap) {
         let opt = this.options
+        let {dest, prefix, padding, algorithm} = opt
 
-        sprite.build(opt, sp => {
-            let path = _.join(opt.output, opt.prefix + sp.tag + '.png')
-            let content = new Buffer(sp.image)
+        Object.keys(spriteMap).forEach(tag => {
+            let dependence = spriteMap[tag]
+            let basename = prefix + tag + '.png'
+            let realpath = path.resolve(process.cwd(), dest, basename)
 
-            File.wrap({
-                path,
-                content,
-                id: sp.tag,
-                sprite: sp,
-                type: 'SPRITE',
-                meta: {
-                    width: sp.properties.width,
-                    height: sp.properties.height,
-                    coordinates: sp.coordinates
-                }
+            let sprite = new Sprite(realpath, tag, dependence, {
+                padding,
+                algorithm
             })
+
+            sprite.build()
         })
-    }
-
-    _outputSprite() {
-        let sprites = store.sprite
-        _.forIn(sprites, file => this.outputSprite(file))
-    }
-
-    _outputStyle() {
-        let processor = postcss()
-        let styles = store.styles
-    // css.process
-    }
-
-    outputStyle(file) {
-        let opt = this.options
-        let name = _.basename(file.realpath)
-        let outputPath = _.join(opt.dest, name)
-        let outputRealpath = _.resolve(outputPath)
-
-        if (_.exists(outputRealpath)) {
-            outputPath = _.join(opt.dest, name)
-            outputRealpath = _.resolve(outputPath)
-        }
-
-        fs.outputFileSync(outputRealpath, file.content, 'utf8')
-        log.build(outputPath)
-    }
-
-    outputSprite(file) {
-        let opt = this.options
-        let name = file.id
-        let outputPath = _.resolve(opt.output, name + '.png')
-
-        fs.outputFileSync(outputPath, file.content, 'binary')
-        log.build(file.path)
     }
 
     _getResource() {

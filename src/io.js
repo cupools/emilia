@@ -8,13 +8,10 @@ export default {
         } catch (e) {}
         return null
     },
-    write(realpath, encode = 'utf8') {
-        return fs.writeFileSync(realpath, encode)
+    write(realpath, content, encode = 'utf8') {
+        return fs.writeFileSync(realpath, content, encode)
     },
     realpath(subpath) {
         return path.resolve(process.cwd(), subpath)
-    },
-    subpath(realpath) {
-        return realpath.replace(process.cwd() + '/', '')
     }
 }

@@ -1,4 +1,5 @@
 import io from './io'
+import image from './image'
 
 class File {
     constructor({realpath, type}) {
@@ -11,7 +12,7 @@ class File {
     }
 
     save() {
-        io.write(this.realpath, this.encoding)
+        io.write(this.realpath, this.content, this.encoding)
     }
 }
 
@@ -35,15 +36,32 @@ class Image extends File {
     }
 }
 
-class Sprite extends File {
-    constructor(realpath, tag, dependences) {
-        super({
-            realpath,
-            type: 'IMAGE'
-        })
+class Sprite {
+    constructor(realpath, tag, dependences, options) {
+        this.realpath = realpath
+        this.subpath = realpath.replace(process.cwd() + '/', '')
+        this.encoding = 'binary'
+        this.type = 'SPRITE'
 
         this.tag = tag
         this.dependences = dependences
+        this.options = options
+        this.stamp = dependences.reduce((ret, file) => (ret += file.stamp), '')
+        this.properties = null
+        this.coordinates = null
+        this.content = null
+    }
+
+    build() {
+        let ret = image.process(this.dependences, this.options)
+
+        this.coordinates = ret.coordinates
+        this.properties = ret.properties
+        this.content = ret.image
+    }
+
+    save() {
+        io.write(this.realpath, this.content, this.encoding)
     }
 }
 
