@@ -21,7 +21,7 @@ export default {
         let styles = store.styles
         Object.keys(styles).forEach(realpath => {
             let file = styles[realpath]
-            file.content = postcss(process.bind(null, store, file)).process(file.content).css
+            file.content = postcss(process.bind(null, store, file, options)).process(file.content).css
         })
     }
 }
@@ -38,43 +38,43 @@ function badge(ret, file, root) {
     })
 }
 
-function process(store, file, root) {
+function process(store, file, {convert, unit}, root) {
     root.walkDecls(/background/, decl => {
         let [, url, flag, tag] = URL_REG.exec(decl.value) || []
         if (!flag || !url || !tag) {
             return
         }
 
+        // TODO, absolute url
+        let realpath = path.resolve(file.realpath, '..', url)
+        let image = store.get(realpath)
+
+        if (!image) {
+            return
+        }
+
         if (tag === INLINE) {
-            // TODO, absolute url
-            let realpath = path.resolve(file.realpath, '..', url)
-            let image = store.get(realpath)
-
-            if (image) {
-                let base64 = image.base64()
-                decl.value = decl.value.replace(replaceUrlReg, `$1${base64}$3`)
-            }
-
+            let base64 = image.base64()
+            decl.value = decl.value.replace(replaceUrlReg, `$1${base64}$3`)
             return
         }
 
         let sprite = store.get(tag, 'tag')
-        let meta = sprite.meta
-        let chip = meta.coordinates[realpath]
+        let properties = sprite.properties
+        let coordinates = sprite.coordinates[realpath]
+
         let pos = postcss.decl({
             prop: 'background-position',
-            value: `${-chip.x / opt.convert}${opt.unit} ${-chip.y / opt.convert}${opt.unit}`
+            value: `${-coordinates.x / convert}${unit} ${-coordinates.y / convert}${unit}`
         })
         let size = postcss.decl({
             prop: 'background-size',
-            value: `${meta.width / opt.convert}${opt.unit} ${meta.height / opt.convert}${opt.unit}`
+            value: `${properties.width / convert}${unit} ${properties.height / convert}${unit}`
         })
 
-        url = sprite.url || `${opt.cssPath}${opt.prefix}${tag}.png`
-        decl.value = decl.value.replace(urlReg, `url('${url}')`)
+        decl.value = decl.value.replace(URL_REG, `url('${sprite.url}')`)
 
         let parent = decl.parent
-
         parent.walkDecls(decl => {
             if (DECL_REMOVE_REG.test(decl.prop)) {
                 decl.remove()
