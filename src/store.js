@@ -5,12 +5,12 @@ let Storage = {
         image: {},
         sprite: {}
     },
-    add(file) {
+    add(file, unique = 'realpath') {
         let t = file.type.toLowerCase()
-        return this.storage[t] && (this.storage[t][file.realpath] = file)
+        return this.storage[t] && (this.storage[t][file[unique]] = file)
     },
-    get(realpath) {
-        return this.storage.sprite[realpath] || this.storage.style[realpath] || this.storage.image[realpath] || null
+    get(unique) {
+        return this.storage.sprite[unique] || this.storage.style[unique] || this.storage.image[unique] || null
     },
     get styles() {
         return this.storage.style
@@ -27,10 +27,10 @@ export default {
     create() {
         return Object.assign({}, Storage)
     },
-    cache(file) {
-        Cache[file.realpath] = file
+    cache(file, unique = 'realpath') {
+        Cache[file[unique]] = file
     },
-    fromCache(realpath) {
-        return Cache[realpath] || null
+    fromCache(unique) {
+        return Cache[unique] || null
     }
 }

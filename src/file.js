@@ -35,6 +35,11 @@ class Image extends File {
 
         this.url = url
     }
+
+    base64() {
+        // TODO, jpg
+        return this.content ? 'data:image/png;base64,' + this.content.toString('base64') : ''
+    }
 }
 
 class Sprite {

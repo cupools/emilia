@@ -1,5 +1,5 @@
 import postcss from 'postcss'
-import image from './image'
+import path from 'path'
 
 const INLINE = 'inline'
 const URL_REG = /(?:url\s?\(['"]?([\w\W]+?)(?:\?(__)?([\w\d\-_]+?))?['"]?\))/
@@ -10,20 +10,18 @@ const DECL_REMOVE_REG = /(-webkit-)?background-(size|repeat)/
  * analyse stylesheet, get sprite tag and return a map
  */
 export default {
-    badge(files) {
-        return Object.keys(files).reduce((ret, realpath) => {
-            let file = files[realpath]
+    badge(store) {
+        let styles = store.styles
+        return Object.keys(styles).reduce((ret, realpath) => {
+            let file = styles[realpath]
             return postcss(badge.bind(null, ret, file)).process(file.content).css && ret
         }, {})
     },
-    process(files, options) {
-        let processor = postcss(process.bind(null, options))
-
-        Object.keys(files).forEach(file => {
-            processor.use(this._updateDecls.bind(this, file))
-            file.content = processor.process(file.content).css
-
-            this.outputStyle(file)
+    process(store, options) {
+        let styles = store.styles
+        Object.keys(styles).forEach(realpath => {
+            let file = styles[realpath]
+            file.content = postcss(process.bind(null, store, file)).process(file.content).css
         })
     }
 }
@@ -40,23 +38,27 @@ function badge(ret, file, root) {
     })
 }
 
-function process(options, root) {
+function process(store, file, root) {
     root.walkDecls(/background/, decl => {
         let [, url, flag, tag] = URL_REG.exec(decl.value) || []
-
-        if (!flag) {
+        if (!flag || !url || !tag) {
             return
         }
 
         if (tag === INLINE) {
-            // TODO
-            let realpath = io.realpath(url)
-            let base64 = image.encode(realpath)
-            decl.value = decl.value.replace(replaceUrlReg, `$1${base64}$3`)
+            // TODO, absolute url
+            let realpath = path.resolve(file.realpath, '..', url)
+            let image = store.get(realpath)
+
+            if (image) {
+                let base64 = image.base64()
+                decl.value = decl.value.replace(replaceUrlReg, `$1${base64}$3`)
+            }
+
             return
         }
 
-        let sprite = sprite.getFile(tag)
+        let sprite = store.get(tag, 'tag')
         let meta = sprite.meta
         let chip = meta.coordinates[realpath]
         let pos = postcss.decl({

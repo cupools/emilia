@@ -29,10 +29,14 @@ class Emilia {
     }
 
     run() {
-        let cssMap = this.collect()
+        let {store, options} = this
+
+        this.collect()
+        let cssMap = css.badge(store)
         let spriteMap = this.pack(cssMap)
 
         this.process(spriteMap)
+        css.process(store, options)
     }
 
     collect() {
@@ -43,8 +47,6 @@ class Emilia {
             let style = new Style(realpath)
             store.add(style)
         })
-
-        return css.badge(store.styles)
     }
 
     pack(cssMap) {
@@ -95,8 +97,8 @@ class Emilia {
                 store.add(old)
             } else {
                 sprite.build()
-                store.add(sprite)
-                Store.cache(sprite)
+                store.add(sprite, 'tag')
+                Store.cache(sprite, 'tag')
             }
         })
     }
