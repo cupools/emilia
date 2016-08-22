@@ -77,7 +77,7 @@ describe('Emilia', function() {
     it('should work with empty `dest`', function() {
         let emilia = new Emilia({
             src: ['test/fixtures/css/main.css'],
-            dest: '',
+            dest: false,
             output: 'test/tmp/',
             quiet: true
         })

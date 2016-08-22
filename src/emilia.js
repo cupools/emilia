@@ -21,7 +21,8 @@ class Emilia {
             padding: 10,
             unit: 'px',
             convert: 1,
-            quiet: false
+            decimalPlaces: 6,
+            quiet: true
         }, options)
 
         this.store = Store.create()
@@ -37,14 +38,16 @@ class Emilia {
 
         this.process(spriteMap)
         css.process(store, options)
+
+        this.output()
     }
 
     collect() {
-        let {store} = this
+        let {store, options} = this
 
         this._getResource().forEach(subpath => {
             let realpath = io.realpath(subpath)
-            let style = new Style(realpath)
+            let style = new Style(realpath, options)
             store.add(style)
         })
     }
@@ -68,7 +71,7 @@ class Emilia {
                     store.add(image)
 
                     ret[tag] = ret[tag] || []
-                    ret[tag].indexOf(image) === -1 && ret[tag].push(image)
+                    ret[tag].filter(item => item.realpath === image.realpath).length === 0 && ret[tag].push(image)
                 })
 
                 return ret
@@ -101,6 +104,12 @@ class Emilia {
                 Store.cache(sprite, 'tag')
             }
         })
+    }
+
+    output() {
+        let {store} = this
+        Object.keys(store.styles).forEach(f => store.styles[f].save())
+        Object.keys(store.sprites).forEach(f => store.sprites[f].save())
     }
 
     _getResource() {

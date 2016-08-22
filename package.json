@@ -7,7 +7,7 @@
     "emilia": "./bin/emilia"
   },
   "scripts": {
-    "test": "cross-env NODE_ENV=test node node_modules/mocha/bin/mocha test/emilia.test.js --compilers js:babel-core/register",
+    "test": "cross-env NODE_ENV=dev node node_modules/mocha/bin/mocha test/emilia.test.js --compilers js:babel-core/register",
     "dev": "rm -rf lib && node node_modules/babel-cli/bin/babel src -d lib -D -w"
   },
   "author": "liyh <cupools@gmail.com>",

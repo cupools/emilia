@@ -1,11 +1,14 @@
+import path from 'path'
+
 import io from './io'
 import image from './image'
-import path from 'path'
+import log from './utils/log'
 
 class File {
     constructor({realpath, type}) {
         this.realpath = realpath
         this.subpath = realpath.replace(process.cwd() + '/', '')
+        this.basename = path.basename(realpath)
         this.encoding = type === 'STYLE' ? 'utf8' : 'binary'
         this.content = io.read(realpath, this.encoding)
         this.stamp = this.content && this.content.length
@@ -13,16 +16,21 @@ class File {
     }
 
     save() {
-        io.write(this.realpath, this.content, this.encoding)
+        if (this.output) {
+            io.write(this.output, this.content, this.encoding)
+            log.build(this.output.replace(process.cwd() + '/', ''))
+        }
     }
 }
 
 class Style extends File {
-    constructor(realpath) {
+    constructor(realpath, {dest}) {
         super({
             realpath,
             type: 'STYLE'
         })
+
+        this.output = path.resolve(dest, this.basename)
     }
 }
 
@@ -71,6 +79,7 @@ class Sprite {
 
     save() {
         io.write(this.realpath, this.content, this.encoding)
+        log.build(this.subpath)
     }
 }
 

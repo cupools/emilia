@@ -2,8 +2,8 @@ import postcss from 'postcss'
 import path from 'path'
 
 const INLINE = 'inline'
-const URL_REG = /(?:url\s?\(['"]?([\w\W]+?)(?:\?(__)?([\w\d\-_]+?))?['"]?\))/
-const replaceUrlReg = /(url\s?\(['"]?)([\w\W]+?)(['"]?\))/
+const URL_REG = /(?:url\s?\(['"]?([\w\W]+?)(?:(\?__)?([\w\d\-_]+?))?['"]?\))/
+const URL_REPLACE_REG = /(url\s?\(['"]?)([\w\W]+?)(['"]?\))/
 const DECL_REMOVE_REG = /(-webkit-)?background-(size|repeat)/
 
 /**
@@ -38,7 +38,7 @@ function badge(ret, file, root) {
     })
 }
 
-function process(store, file, {convert, unit}, root) {
+function process(store, file, {convert, unit, decimalPlaces}, root) {
     root.walkDecls(/background/, decl => {
         let [, url, flag, tag] = URL_REG.exec(decl.value) || []
         if (!flag || !url || !tag) {
@@ -50,12 +50,13 @@ function process(store, file, {convert, unit}, root) {
         let image = store.get(realpath)
 
         if (!image) {
+            decl.value = decl.value.replace(flag + tag, '')
             return
         }
 
         if (tag === INLINE) {
             let base64 = image.base64()
-            decl.value = decl.value.replace(replaceUrlReg, `$1${base64}$3`)
+            decl.value = decl.value.replace(URL_REPLACE_REG, `$1${base64}$3`)
             return
         }
 
@@ -63,24 +64,26 @@ function process(store, file, {convert, unit}, root) {
         let properties = sprite.properties
         let coordinates = sprite.coordinates[realpath]
 
+        let [x, y, width, height] = [-coordinates.x, -coordinates.y, properties.width, properties.height].map(decimal)
+
         let pos = postcss.decl({
             prop: 'background-position',
-            value: `${-coordinates.x / convert}${unit} ${-coordinates.y / convert}${unit}`
+            value: `${x}${unit} ${y}${unit}`
         })
         let size = postcss.decl({
             prop: 'background-size',
-            value: `${properties.width / convert}${unit} ${properties.height / convert}${unit}`
+            value: `${width}${unit} ${height}${unit}`
         })
 
         decl.value = decl.value.replace(URL_REG, `url('${sprite.url}')`)
 
         let parent = decl.parent
-        parent.walkDecls(decl => {
-            if (DECL_REMOVE_REG.test(decl.prop)) {
-                decl.remove()
-            }
-        })
+        parent.walkDecls(decl => DECL_REMOVE_REG.test(decl.prop) && decl.remove())
         parent.append(pos)
         parent.append(size)
     })
+
+    function decimal(num) {
+        return convert === 1 ? num : Number((num / convert).toFixed(decimalPlaces))
+    }
 }
