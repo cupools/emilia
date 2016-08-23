@@ -82,7 +82,7 @@ describe('Emilia', function() {
             quiet: true
         })
 
-        expect(emilia.run.bind(emilia)).to.not.throw(Error)
+        expect(emilia.run.bind(emilia)).to.throw(TypeError)
 
         expect('test/tmp/main.css').to.not.be.exist
         expect('test/tmp/tom.png').to.not.be.exist

@@ -32,6 +32,10 @@ class Emilia {
     run() {
         let {store, options} = this
 
+        assert(options.src, [String, Array], 'option.src should be Array or String')
+        assert(options.dest, String, 'option.dest should be Sting')
+        assert(options.output, String, 'option.output should be String')
+
         this.collect()
         let cssMap = css.badge(store)
         let spriteMap = this.pack(cssMap)
@@ -117,6 +121,16 @@ class Emilia {
         let styles = src.reduce((ret, pattern) => ret.push(...glob.sync(pattern)) && ret, [])
 
         return _.uniq(styles)
+    }
+}
+
+function assert(actual, expect, info) {
+    if (expect.some) {
+        if (!expect.some(item => Object.prototype.toString.call(actual).indexOf(item.name) > -1)) {
+            throw new TypeError(info)
+        }
+    } else if (Object.prototype.toString.call(actual).indexOf(expect.name) < 0) {
+        throw new TypeError(info)
     }
 }
 
