@@ -5,8 +5,8 @@ import path from 'path'
 import Store from './store'
 import css from './css'
 import io from './io'
+import lint from './lint'
 import log from './utils/log'
-
 import { Style, Image, Sprite } from './file'
 
 class Emilia {
@@ -22,7 +22,7 @@ class Emilia {
             unit: 'px',
             convert: 1,
             decimalPlaces: 6,
-            quiet: true
+            quiet: false
         }, options)
 
         this.store = Store.create()
@@ -32,9 +32,9 @@ class Emilia {
     run() {
         let {store, options} = this
 
-        assert(options.src, [String, Array], 'option.src should be Array or String')
-        assert(options.dest, String, 'option.dest should be Sting')
-        assert(options.output, String, 'option.output should be String')
+        if (!lint(options)) {
+            return false
+        }
 
         this.collect()
         let cssMap = css.badge(store)
@@ -121,16 +121,6 @@ class Emilia {
         let styles = src.reduce((ret, pattern) => ret.push(...glob.sync(pattern)) && ret, [])
 
         return _.uniq(styles)
-    }
-}
-
-function assert(actual, expect, info) {
-    if (expect.some) {
-        if (!expect.some(item => Object.prototype.toString.call(actual).indexOf(item.name) > -1)) {
-            throw new TypeError(info)
-        }
-    } else if (Object.prototype.toString.call(actual).indexOf(expect.name) < 0) {
-        throw new TypeError(info)
     }
 }
 

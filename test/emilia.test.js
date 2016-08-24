@@ -21,7 +21,7 @@ describe('Emilia', function() {
             padding: 100,
             unit: 'px',
             convert: 1,
-            quiet: true
+            quiet: false
         })
 
         expect(emilia.run.bind(emilia)).to.not.throw(Error)
@@ -64,7 +64,7 @@ describe('Emilia', function() {
             src: [],
             dest: 'test/tmp/',
             output: 'test/tmp/',
-            quiet: true
+            quiet: false
         })
 
         expect(emilia.run.bind(emilia)).to.not.throw(Error)
@@ -79,10 +79,10 @@ describe('Emilia', function() {
             src: ['test/fixtures/css/main.css'],
             dest: false,
             output: 'test/tmp/',
-            quiet: true
+            quiet: false
         })
 
-        expect(emilia.run.bind(emilia)).to.throw(TypeError)
+        expect(emilia.run.bind(emilia)).to.not.throw(Error)
 
         expect('test/tmp/main.css').to.not.be.exist
         expect('test/tmp/tom.png').to.not.be.exist
