@@ -21,6 +21,7 @@ describe('Emilia', function() {
             padding: 100,
             unit: 'px',
             convert: 1,
+            decimalPlaces: 6,
             quiet: false
         })
 
@@ -74,11 +75,26 @@ describe('Emilia', function() {
         expect('test/tmp/jerry.png').to.not.be.exist
     })
 
-    it('should work with empty `dest`', function() {
+    it('should exist with empty `dest`', function() {
         let emilia = new Emilia({
             src: ['test/fixtures/css/main.css'],
             dest: false,
             output: 'test/tmp/',
+            quiet: false
+        })
+
+        expect(emilia.run.bind(emilia)).to.not.throw(Error)
+
+        expect('test/tmp/main.css').to.not.be.exist
+        expect('test/tmp/tom.png').to.not.be.exist
+        expect('test/tmp/jerry.png').to.not.be.exist
+    })
+
+    it('should exist with empty `output`', function() {
+        let emilia = new Emilia({
+            src: ['test/fixtures/css/main.css'],
+            dest: 'test/tmp/',
+            output: false,
             quiet: false
         })
 

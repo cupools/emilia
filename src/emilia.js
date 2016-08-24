@@ -1,5 +1,4 @@
 import glob from 'glob'
-import _ from 'lodash'
 import path from 'path'
 
 import Store from './store'
@@ -120,7 +119,7 @@ class Emilia {
         let {src} = this.options
         let styles = src.reduce((ret, pattern) => ret.push(...glob.sync(pattern)) && ret, [])
 
-        return _.uniq(styles)
+        return [...new Set(styles)]
     }
 }
 
