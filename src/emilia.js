@@ -98,14 +98,17 @@ class Emilia {
             })
 
             // cache only sprite
-            let old = Store.fromCache(realpath)
+            let old = Store.fromCache(tag, 'tag')
             if (old && old.stamp === sprite.stamp) {
-                store.add(old)
+                sprite.coordinates = old.coordinates
+                sprite.properties = old.properties
+                sprite.content = old.image
             } else {
                 sprite.build()
-                store.add(sprite, 'tag')
-                Store.cache(sprite, 'tag')
             }
+
+            store.add(sprite, 'tag')
+            Store.cache(sprite, 'tag')
         })
     }
 

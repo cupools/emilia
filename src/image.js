@@ -64,8 +64,5 @@ export default {
             coordinates,
             properties
         }
-    },
-    encode(buffer) {
-        return buffer.toString('base64')
     }
 }

@@ -78,7 +78,7 @@ function process(store, file, {convert, unit, decimalPlaces}, root) {
         decl.value = decl.value.replace(URL_REG, `url('${sprite.url}')`)
 
         let parent = decl.parent
-        parent.walkDecls(decl => DECL_REMOVE_REG.test(decl.prop) && decl.remove())
+        parent.walkDecls(DECL_REMOVE_REG, decl => decl.remove())
         parent.append(pos)
         parent.append(size)
     })

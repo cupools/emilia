@@ -60,6 +60,22 @@ describe('Emilia', function() {
             })
     })
 
+    it('should work with sprite cache', function() {
+        let emilia = new Emilia({
+            src: ['test/fixtures/css/main.css'],
+            dest: 'test/tmp/',
+            output: 'test/tmp/',
+            prefix: 'sp-',
+            quiet: false
+        })
+
+        expect(emilia.run.bind(emilia)).to.not.throw(Error)
+
+        expect('test/tmp/main.css').to.be.exist
+        expect('test/tmp/sp-tom.png').to.be.exist
+        expect('test/tmp/sp-jerry.png').to.be.exist
+    })
+
     it('should work with empty `src`', function() {
         let emilia = new Emilia({
             src: [],
@@ -103,5 +119,37 @@ describe('Emilia', function() {
         expect('test/tmp/main.css').to.not.be.exist
         expect('test/tmp/tom.png').to.not.be.exist
         expect('test/tmp/jerry.png').to.not.be.exist
+    })
+
+    it('should work with convert', function() {
+        let emilia = new Emilia({
+            src: ['test/fixtures/css/main.css'],
+            dest: 'test/tmp/',
+            output: 'test/tmp/',
+            cssPath: './',
+            prefix: '',
+            algorithm: 'left-right',
+            padding: 100,
+            unit: 'rem',
+            convert: 2,
+            decimalPlaces: 6,
+            quiet: false
+        })
+
+        expect(emilia.run.bind(emilia)).to.not.throw(Error)
+
+        expect('test/tmp/tom.png').to.be.exist
+        expect('test/tmp/jerry.png').to.be.exist
+        expect('test/tmp/main.css').to
+            .have.selector('.icon0').and.decl({
+                background: '#ccc url(\'./tom.png\') no-repeat',
+                'background-position': '0rem 0rem',
+                'background-size': '662rem 128rem'
+            })
+            .and.have.selector('.icon1').and.decl({
+                background: 'url(\'./tom.png\') no-repeat',
+                'background-position': '-178rem 0rem',
+                'background-size': '662rem 128rem'
+            })
     })
 })

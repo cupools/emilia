@@ -16,10 +16,8 @@ class File {
     }
 
     save() {
-        if (this.output) {
-            io.write(this.output, this.content, this.encoding)
-            log.build(this.output.replace(process.cwd() + '/', ''))
-        }
+        io.write(this.output, this.content, this.encoding)
+        log.build(this.output.replace(process.cwd() + '/', ''))
     }
 }
 
@@ -45,8 +43,8 @@ class Image extends File {
     }
 
     base64() {
-        // TODO, jpg
-        return this.content ? 'data:image/png;base64,' + this.content.toString('base64') : ''
+        let extname = path.extname(this.realpath).slice(1)
+        return `data:image/${extname};base64,` + this.content.toString('base64')
     }
 }
 
