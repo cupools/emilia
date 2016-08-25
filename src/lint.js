@@ -43,6 +43,7 @@ export default function(opt) {
         let actual = opt[param]
         let ret = true
 
+        /* istanbul ignore next */
         if (typeOf) {
             ret = ret && assert.typeOf(actual, typeOf, `${param} should be ${typeOf.name} but get \`${actual}\``)
         }

@@ -1,13 +1,11 @@
 import colors from 'colors'
 import path from 'path'
 
+const log = {}
 let quiet = false
 
-let log = function(msg) {
-    log.console(msg)
-}
-
 log.console = function(msg) {
+    /* istanbul ignore next */
     process.env.NODE_ENV !== 'test' && !quiet && console.log(msg)
 }
 

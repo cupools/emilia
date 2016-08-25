@@ -29,7 +29,7 @@ export default {
     create() {
         return new Storage()
     },
-    cache(file, unique = 'realpath') {
+    cache(file, unique) {
         Cache[file[unique]] = file
     },
     fromCache(unique) {
