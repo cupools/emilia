@@ -66,25 +66,24 @@ describe('Emilia', function() {
             })
     })
 
-    it('should work with sprite cache', function() {
+    it('should work with empty `src`', function() {
         let emilia = new Emilia({
-            src: ['test/fixtures/css/main.css'],
+            src: [],
             dest: 'test/tmp/',
             output: 'test/tmp/',
-            prefix: 'sp-',
             quiet: false
         })
 
         expect(emilia.run.bind(emilia)).to.not.throw(Error)
 
-        expect('test/tmp/main.css').to.be.exist
-        expect('test/tmp/sp-tom.png').to.be.exist
-        expect('test/tmp/sp-jerry.png').to.be.exist
+        expect('test/tmp/main.css').to.not.be.exist
+        expect('test/tmp/tom.png').to.not.be.exist
+        expect('test/tmp/jerry.png').to.not.be.exist
     })
 
-    it('should work with empty `src`', function() {
+    it('should work with bad pattern `src`', function() {
         let emilia = new Emilia({
-            src: [],
+            src: ['about:block'],
             dest: 'test/tmp/',
             output: 'test/tmp/',
             quiet: false
@@ -193,6 +192,39 @@ describe('Emilia', function() {
             })
     })
 
+    it('should work with multiple stylesheet', function() {
+        let emilia = new Emilia({
+            src: ['test/fixtures/css/multi_*.css'],
+            dest: 'test/tmp/',
+            output: 'test/tmp/',
+            algorithm: 'top-down',
+            cssPath: '',
+            prefix: '',
+            convert: 1,
+            padding: 10,
+            decimalPlaces: 10,
+            quiet: false
+        })
+
+        expect(emilia.run.bind(emilia)).to.not.throw(Error)
+
+        expect('test/tmp/tom.png').to.be.exist
+        expect('test/tmp/jerry.png').to.be.exist
+        expect('test/tmp/multi_one.css')
+            .to.have.selector('.icon0')
+            .and.decl({
+                background: 'url(\'tom.png\') no-repeat',
+                'background-position': '0px -110px',
+                'background-size': '256px 1164px'
+            })
+            .and.have.selector('.icon7')
+            .and.decl({
+                background: 'url(\'jerry.png\') no-repeat',
+                'background-position': '0px -160px',
+                'background-size': '400px 670px'
+            })
+    })
+
     it('should work with cache', function() {
         let emilia = new Emilia({
             src: ['test/fixtures/css/custom.css'],
@@ -211,5 +243,7 @@ describe('Emilia', function() {
         expect(emilia.run.bind(emilia)).to.not.throw(Error)
 
         expect('test/tmp/sprite.png').to.be.exist
+
+        expect(Object.keys(emilia.store.images)).to.have.lengthOf(2)
     })
 })

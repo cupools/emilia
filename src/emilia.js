@@ -120,7 +120,15 @@ class Emilia {
 
     _getResource() {
         let {src} = this.options
-        let styles = src.reduce((ret, pattern) => ret.push(...glob.sync(pattern)) && ret, [])
+        let styles = src.reduce((ret, pattern) => {
+            let map = glob.sync(pattern)
+
+            if (map.length) {
+                ret.push(...map)
+            }
+
+            return ret
+        }, [])
 
         return [...new Set(styles)]
     }
