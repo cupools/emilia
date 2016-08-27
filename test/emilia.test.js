@@ -21,7 +21,7 @@ describe('Emilia', function() {
             padding: 100,
             unit: 'px',
             convert: 1,
-            decimalPlaces: 6,
+            decimal: 6,
             quiet: false
         })
 
@@ -137,7 +137,7 @@ describe('Emilia', function() {
             padding: 100,
             unit: 'rem',
             convert: 2,
-            decimalPlaces: 6,
+            decimal: 6,
             quiet: false
         })
 
@@ -160,7 +160,7 @@ describe('Emilia', function() {
             })
     })
 
-    it('should work with decimalPlaces', function() {
+    it('should work with decimal', function() {
         let emilia = new Emilia({
             src: ['test/fixtures/css/custom.css'],
             dest: 'test/tmp/',
@@ -170,7 +170,7 @@ describe('Emilia', function() {
             prefix: '',
             convert: 3,
             padding: 0,
-            decimalPlaces: 2,
+            decimal: 2,
             quiet: false
         })
 
@@ -202,7 +202,7 @@ describe('Emilia', function() {
             prefix: '',
             convert: 1,
             padding: 10,
-            decimalPlaces: 10,
+            decimal: 10,
             quiet: false
         })
 
@@ -235,7 +235,7 @@ describe('Emilia', function() {
             prefix: '',
             convert: 1,
             padding: 15,
-            decimalPlaces: 2,
+            decimal: 2,
             quiet: false
         })
 

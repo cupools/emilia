@@ -30,7 +30,7 @@ const schemes = [{
     param: 'convert',
     typeOf: Number
 }, {
-    param: 'decimalPlaces',
+    param: 'decimal',
     typeOf: Number
 }, {
     param: 'quiet',

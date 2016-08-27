@@ -1,6 +1,6 @@
 import log from '../utils/log'
 
-export default function () {
+export default function() {
     let usage = [
         '',
         '  Usage: emilia [options] [command]',
@@ -19,6 +19,7 @@ export default function () {
         '    --algorithm            layout algorithm of sprite pictures',
         '    --padding              padding between images',
         '    --convert              numerical scale',
+        '    --decimal              keep the number of decimal places with convert',
         '    --unit                 unit of backgound-size and position',
         '    --quiet                disabled output info in the console',
         ''

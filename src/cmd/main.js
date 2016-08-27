@@ -48,8 +48,8 @@ export default function() {
                 options.convert = Number(argv.shift())
                 break
 
-            case '--decimalPlaces':
-                options.decimalPlaces = Number(argv.shift())
+            case '--decimal':
+                options.decimal = Number(argv.shift())
                 break
 
             case '--quiet':

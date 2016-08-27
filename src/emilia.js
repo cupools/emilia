@@ -20,7 +20,7 @@ class Emilia {
             padding: 10,
             unit: 'px',
             convert: 1,
-            decimalPlaces: 6,
+            decimal: 6,
             quiet: false
         }, options)
 

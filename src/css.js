@@ -38,7 +38,7 @@ function badge(ret, file, root) {
     })
 }
 
-function process(store, file, {convert, unit, decimalPlaces}, root) {
+function process(store, file, {convert, unit, decimal}, root) {
     root.walkDecls(/background/, decl => {
         let [, url, flag, tag] = URL_REG.exec(decl.value) || []
         if (!flag || !url || !tag) {
@@ -64,7 +64,7 @@ function process(store, file, {convert, unit, decimalPlaces}, root) {
         let properties = sprite.properties
         let coordinates = sprite.coordinates[realpath]
 
-        let [x, y, width, height] = [-coordinates.x, -coordinates.y, properties.width, properties.height].map(decimal)
+        let [x, y, width, height] = [-coordinates.x, -coordinates.y, properties.width, properties.height].map(decimalFixed)
 
         let pos = postcss.decl({
             prop: 'background-position',
@@ -83,7 +83,7 @@ function process(store, file, {convert, unit, decimalPlaces}, root) {
         parent.append(size)
     })
 
-    function decimal(num) {
-        return convert === 1 ? num : Number((num / convert).toFixed(decimalPlaces))
+    function decimalFixed(num) {
+        return convert === 1 ? num : Number((num / convert).toFixed(decimal))
     }
 }
