@@ -75,6 +75,10 @@ class Sprite {
         return this
     }
 
+    equal(obj) {
+        return this.options.padding === obj.options.padding && this.options.algorithm === obj.options.algorithm && this.stamp === obj.stamp
+    }
+
     save() {
         io.write(this.realpath, this.content, this.encoding)
         log.build(this.subpath)

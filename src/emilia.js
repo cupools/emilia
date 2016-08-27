@@ -15,7 +15,7 @@ class Emilia {
             dest: 'build/css/',
             output: 'build/images/',
             cssPath: '../images/',
-            prefix: 'sprite-',
+            prefix: '',
             algorithm: 'binary-tree',
             padding: 10,
             unit: 'px',
@@ -99,10 +99,10 @@ class Emilia {
 
             // cache only sprite
             let old = Store.fromCache(tag, 'tag')
-            if (old && old.stamp === sprite.stamp) {
+            if (old && old.equal(sprite)) {
                 sprite.coordinates = old.coordinates
                 sprite.properties = old.properties
-                sprite.content = old.image
+                sprite.content = old.content
             } else {
                 sprite.build()
             }

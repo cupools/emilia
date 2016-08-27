@@ -10,8 +10,8 @@ export default function() {
         switch (cmd) {
             case '--src':
             case '-s':
-                options.src = argv.shift()
-                options.src = options.src ? options.src.split(',') : []
+                let src = argv.shift()
+                options.src = src ? src.split(',') : []
                 break
 
             case '--dest':
@@ -37,7 +37,7 @@ export default function() {
                 break
 
             case '--padding':
-                options.padding = argv.shift()
+                options.padding = Number(argv.shift())
                 break
 
             case '--unit':
@@ -45,11 +45,15 @@ export default function() {
                 break
 
             case '--convert':
-                options.convert = argv.shift()
+                options.convert = Number(argv.shift())
+                break
+
+            case '--decimalPlaces':
+                options.decimalPlaces = Number(argv.shift())
                 break
 
             case '--quiet':
-                options.quiet = argv.shift()
+                options.quiet = !!argv.shift()
                 break
         }
     }

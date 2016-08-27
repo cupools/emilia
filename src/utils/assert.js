@@ -15,7 +15,11 @@ export default {
         }
         return true
     },
-    isNotNull(actual) {
-        return actual != null
+    isNotNull(actual, info) {
+        if (actual != null) {
+            return true
+        }
+        log.error(info)
+        return false
     }
 }

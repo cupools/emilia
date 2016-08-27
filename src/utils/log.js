@@ -1,8 +1,11 @@
 import colors from 'colors'
 import path from 'path'
 
-const log = {}
 let quiet = false
+
+function log(msg) {
+    log.console(msg)
+}
 
 log.console = function(msg) {
     /* istanbul ignore next */
@@ -11,10 +14,6 @@ log.console = function(msg) {
 
 log.info = function(msg) {
     log.console('[info]: ' + msg)
-}
-
-log.warn = function(msg) {
-    log.console('[warn]: ' + colors.yellow(msg))
 }
 
 log.error = function(msg) {
