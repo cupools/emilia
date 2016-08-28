@@ -47,10 +47,14 @@ class Emilia {
 
     collect() {
         let {store, options} = this
+        let {dest} = options
 
         this._getResource().forEach(subpath => {
+            // TODO
             let realpath = io.realpath(subpath)
-            let style = new Style(realpath, options)
+            let style = new Style(realpath, {
+                dest
+            })
             store.add(style)
         })
     }
@@ -63,6 +67,7 @@ class Emilia {
             return Object.keys(tags).reduce((ret, tag) => {
                 let urls = tags[tag]
                 urls.forEach(url => {
+                    // TODO
                     let imageRealpath = path.resolve(realpath, '..', url)
                     let image = new Image(imageRealpath, url)
 

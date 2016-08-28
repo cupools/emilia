@@ -39,6 +39,7 @@ function badge(ret, file, root) {
 }
 
 function process(store, file, {convert, unit, decimal}, root) {
+    // TODO hook
     root.walkDecls(/background/, decl => {
         let [, url, flag, tag] = URL_REG.exec(decl.value) || []
         if (!flag || !url || !tag) {

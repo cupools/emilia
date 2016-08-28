@@ -1,5 +1,8 @@
 ## Emilia
 [![Build Status](https://travis-ci.org/cupools/emilia.svg?branch=master)](https://travis-ci.org/cupools/emilia)
+[![Coverage Status](https://coveralls.io/repos/github/cupools/emilia/badge.svg?branch=master)](https://coveralls.io/github/cupools/emilia?branch=master)
+
+> The master branch is not stable currently, try [v0.1.1](https://github.com/cupools/emilia/tree/v0.1.1).
 
 Css sprite tool, supports rem, supports output multiple sprites pictures.
 

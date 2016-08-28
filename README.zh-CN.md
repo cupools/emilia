@@ -1,5 +1,8 @@
 ## Emilia
 [![Build Status](https://travis-ci.org/cupools/emilia.svg?branch=master)](https://travis-ci.org/cupools/emilia)
+[![Coverage Status](https://coveralls.io/repos/github/cupools/emilia/badge.svg?branch=master)](https://coveralls.io/github/cupools/emilia?branch=master)
+
+> master 分支目前不稳定，尝试 [v0.1.1](https://github.com/cupools/emilia/tree/v0.1.1)
 
 Sprite 工具，支持 `rem`，支持输出多套精灵图片。
 
