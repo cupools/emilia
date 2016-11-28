@@ -2,39 +2,33 @@ import layout from 'layout'
 import sortBy from 'lodash.sortby'
 
 const TopDown = {
-    sort(items) {
-        return sortBy(items, item => item.height)
-    },
-    placeItems(items) {
-        let y = 0
+  sort(items) {
+    return sortBy(items, item => item.height)
+  },
+  placeItems(items) {
+    let y = 0
 
-        items.forEach(function(item) {
-            item.x = 0
-            item.y = y
-
-            y += item.height
-        })
-
-        return items
-    }
+    return items.map(item => {
+      const ret = { ...item, x: 0, y }
+      y += item.height
+      return ret
+    })
+  }
 }
 
 const LeftRight = {
-    sort(items) {
-        return sortBy(items, item => item.width)
-    },
-    placeItems(items) {
-        let x = 0
+  sort(items) {
+    return sortBy(items, item => item.width)
+  },
+  placeItems(items) {
+    let x = 0
 
-        items.forEach(function(item) {
-            item.x = x
-            item.y = 0
-
-            x += item.width
-        })
-
-        return items
-    }
+    return items.map(item => {
+      const ret = { ...item, x, y: 0 }
+      x += item.width
+      return ret
+    })
+  }
 }
 
 layout.addAlgorithm('top-down', TopDown)
