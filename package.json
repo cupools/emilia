@@ -20,8 +20,10 @@
     "glob": "^7.0.3",
     "images": "^3.0.0",
     "layout": "^2.2.0",
+    "lodash.merge": "^4.6.0",
     "lodash.sortby": "^4.7.0",
-    "postcss": "^5.1.2"
+    "postcss": "^5.1.2",
+    "proof": "github:cupools/proof"
   },
   "devDependencies": {
     "assert": "^1.4.1",
