@@ -18,7 +18,7 @@ export function getUrls(content) {
     const start = value.indexOf('url(')
     const end = value.indexOf(')')
     const url = value.substring(start + 4, end - 1).replace(/^[\s"']|[\s"']$/, '')
-    ret.push(url)
+    ret.push({ url, decl })
   })
 
   return ret

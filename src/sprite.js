@@ -7,11 +7,11 @@ Images.setLimit(INFINITE, INFINITE)
 
 /**
  * build sprite images
- * @param  {Array} files   buffer of images
  * @param  {Object} options padding & algorithm
+ * @param  {Array} files   buffer of images
  * @return {Object}         coordinates & size
  */
-export default function process(files, options) {
+export default function process(options, files) {
   const { padding, algorithm } = options
   const layer = layout(algorithm)
 
@@ -28,6 +28,7 @@ export default function process(files, options) {
 
     layer.addItem(item)
   })
+
 
   const { items } = layer.export()
   const width = layer.width - padding
@@ -49,6 +50,8 @@ export default function process(files, options) {
 
     sprite.draw(img, x, y)
   })
+
+  console.log(coordinates, properties)
 
   return {
     image: sprite.encode('png'),
