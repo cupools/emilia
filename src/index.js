@@ -1,51 +1,32 @@
-import path from 'path'
-import merge from 'lodash.merge'
-import postcss from 'postcss'
 import proof from 'proof'
 import lint from './lint'
 
-export default class Emilia {
-  constructor(plugins, opts = {}) {
-    this.plugins = plugins
-    this.options = proof(opts, lint)
-  }
+export default function emilia(opts = {}, content) {
+  const options = proof(opts, lint)
+  const { resolveUrl, urlDetect, getBuffer, getUrls } = options
 
-  process(content) {
-    const { plugins, options } = this
-    const urlMaps = getUrls(content)
-      .map(resolveUrl)
-      .map(urlDetect)
-      .reduce((ret, item) => merge(ret, item), {})
-  }
+  const maps = getUrls(content) // => [url, ...]
+    .map(urlDetect) // => [{ url, tag, seperator }, ...]
+    .reduce( // => { [tag]: [{ url, tag, seperator }] }
+      (ret, { url, tag, seperator }) => ({
+        [tag]: (ret[tag] || []).concat({ url, tag, seperator })
+      }),
+      {}
+    )
 
-  static merge(...args) {}
+  const mapsWithPath = eachAssign(maps, item => ({ ...item, filepath: resolveUrl(item.url) }))
+  const mapsWithBuffer = eachAssign(
+    mapsWithPath,
+    item => ({ ...item, buffer: getBuffer(item.filepath) })
+  )
 }
 
-function resolveUrl(options, url) {
-  const { basePath } = options
-  return path.join(basePath, url)
-}
-
-function getUrls(content) {
-  let ret = []
-
-  const root = postcss.parse(content)
-  root.walkDecls(/background(-image)?$/, decl => {
-    const { value } = decl
-    const start = value.indexOf('url(')
-    const end = value.indexOf(')')
-    const url = value.substr(start, end)
-    ret.push(url)
-  })
-
-  return ret
-}
-
-function urlDetect(url) {
-  const index = url.indexOf('?__')
-  const [path, tag] = url.split(index)
-
-  return index < 0
-    ? { unresolve: path }
-    : { [tag]: path }
+function eachAssign(obj, fn) {
+  return Object.keys(obj).reduce(
+    (ret, key) => ({
+      ...ret,
+      [key]: obj[key].map(fn)
+    }),
+    {}
+  )
 }
