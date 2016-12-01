@@ -10,8 +10,12 @@ export default function emilia(opts = {}, content) {
   const assignTag = item => ({ ...item, ...urlDetect(item.url) }) // => [{ url, decl, tag, seperator }, ...]
   const assignPath = item => ({ ...item, filepath: resolveUrl(item.url) })
   const assignBuffer = item => ({ ...item, buffer: getBuffer(item.filepath) })
-  const maps = raw.map(item => assignBuffer(assignPath(assignTag(item))))
+  const maps = raw.map(map(assignBuffer, assignPath, assignTag))
 
   const { algorithm, padding } = options
   const builder = sprite.bind(null, { algorithm, padding })
+}
+
+function map(...fns) {
+  return target => fns.reduceRight((ret, fn) => fn(ret), target)
 }
