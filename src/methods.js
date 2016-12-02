@@ -5,8 +5,10 @@ export function resolveUrl(url) {
   return url
 }
 
-export function getBuffer(url) {
-  return fs.readFileSync(url)
+export function detectUrl(raw) {
+  const seperator = '?__'
+  const [url, tag] = raw.split(seperator)
+  return tag ? { url, tag, seperator, raw } : null
 }
 
 export function getUrls(content) {
@@ -24,8 +26,12 @@ export function getUrls(content) {
   return ret
 }
 
-export function urlDetect(raw) {
-  const seperator = '?__'
-  const [url, tag] = raw.split(seperator)
-  return tag ? { url, tag, seperator, raw } : null
+export function getBuffer(url) {
+  return fs.readFileSync(url)
+}
+
+export function getGroup(all, tag) {
+  return all
+    .filter(item => item.tag === tag)
+    .map((_, index) => index)
 }

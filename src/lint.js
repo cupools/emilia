@@ -5,17 +5,21 @@ export default {
     typeOf: 'function',
     default: methods.resolveUrl
   },
-  getBuffer: {
+  detectUrl: {
     typeOf: 'function',
-    default: methods.getBuffer
+    default: methods.detectUrl
   },
   getUrls: {
     typeOf: 'function',
     default: methods.getUrls
   },
-  urlDetect: {
+  getBuffer: {
     typeOf: 'function',
-    default: methods.urlDetect
+    default: methods.getBuffer
+  },
+  getGroup: {
+    typeOf: 'function',
+    default: methods.getGroup
   },
   publicPath: {
     typeOf: 'string',
