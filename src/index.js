@@ -1,4 +1,5 @@
 import proof from 'proof'
+import _ from './util'
 import sprite from './sprite'
 import lint from './lint'
 
@@ -12,18 +13,12 @@ export default function emilia(opts = {}, content) {
   const assignTag = item => ({ ...item, ...detectUrl(item.url) })
   const assignPath = item => ({ ...item, filepath: resolveUrl(item.url) })
   const assignBuffer = item => ({ ...item, buffer: getBuffer(item.filepath) })
-  const bundles = raw.map(map(assignBuffer, assignPath, assignTag))
+  const bundles = raw.map(_.map(assignBuffer, assignPath, assignTag))
 
-  const assignGroup = items => items.map(
-    item => ({ ...item, group: getGroup.bind(null, items)(item.tag) })
-  )
-  const assignSprite = items => items.map(
-    item => ({ ...item, sprite: getSprite.bind(null, processor, items)(item.group) })
+  const assignGroup = item => ({ ...item, group: getGroup.bind(null, bundles)(item.tag) })
+  const assignSprite = item => (
+    { ...item, sprite: getSprite.bind(null, processor, bundles)(item.group) }
   )
 
-  const result = map(assignSprite, assignGroup)(bundles)
-}
-
-function map(...fns) {
-  return target => fns.reduceRight((ret, fn) => fn(ret), target)
+  const result = _.Map(assignSprite, assignGroup)(bundles)
 }
