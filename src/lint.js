@@ -21,6 +21,10 @@ export default {
     typeOf: 'function',
     default: methods.getGroup
   },
+  getSprite: {
+    typeOf: 'function',
+    default: methods.getSprite
+  },
   publicPath: {
     typeOf: 'string',
     default: '/'

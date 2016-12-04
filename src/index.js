@@ -4,17 +4,24 @@ import lint from './lint'
 
 export default function emilia(opts = {}, content) {
   const options = proof(opts, lint)
-  const { resolveUrl, detectUrl, getBuffer, getUrls, getGroup } = options
+  const { resolveUrl, detectUrl, getBuffer, getUrls, getGroup, getSprite } = options
+  const { algorithm, padding } = options
+  const processor = sprite.bind(null, { algorithm, padding })
 
   const raw = getUrls(content) // => [{ url, decl }, ...]
   const assignTag = item => ({ ...item, ...detectUrl(item.url) })
   const assignPath = item => ({ ...item, filepath: resolveUrl(item.url) })
   const assignBuffer = item => ({ ...item, buffer: getBuffer(item.filepath) })
-  const assignGroup = item => ({ ...item, group: getGroup(item.tag) })
   const bundles = raw.map(map(assignBuffer, assignPath, assignTag))
 
-  const { algorithm, padding } = options
-  const builder = sprite.bind(null, { algorithm, padding })
+  const assignGroup = items => items.map(
+    item => ({ ...item, group: getGroup.bind(null, items)(item.tag) })
+  )
+  const assignSprite = items => items.map(
+    item => ({ ...item, sprite: getSprite.bind(null, processor, items)(item.group) })
+  )
+
+  const result = map(assignSprite, assignGroup)(bundles)
 }
 
 function map(...fns) {

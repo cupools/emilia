@@ -35,3 +35,7 @@ export function getGroup(all, tag) {
     .filter(item => item.tag === tag)
     .map((_, index) => index)
 }
+
+export function getSprite(processor, all, group) {
+  return processor(group.map(index => all[index].buffer))
+}

@@ -8,14 +8,14 @@ Images.setLimit(INFINITE, INFINITE)
 /**
  * build sprite images
  * @param  {Object} options padding & algorithm
- * @param  {Array} files   buffer of images
+ * @param  {Array} buffers   buffer of images
  * @return {Object}         coordinates & size
  */
-export default function process(options, files) {
+export default function process(options, buffers) {
   const { padding, algorithm } = options
   const layer = layout(algorithm)
 
-  files.forEach((file, index) => {
+  buffers.forEach((file, index) => {
     const image = Images(file)
     const size = image.size()
 
