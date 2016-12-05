@@ -15,41 +15,46 @@ export default function process(options, buffers) {
   const { padding, algorithm } = options
   const layer = layout(algorithm)
 
-  buffers.forEach((file, index) => {
-    const image = Images(file)
+  const base64 = buffers.map(buffer => buffer.toString('base64'))
+  buffers.forEach((buffer, index) => {
+    const parent = base64.slice(0, index).indexOf(base64[index])
+    const image = Images(buffer)
     const size = image.size()
 
-    const item = {
+    layer.addItem({
+      parent,
       index,
       image,
-      width: size.width + padding,
-      height: size.height + padding
-    }
-
-    layer.addItem(item)
+      width: parent === -1 ? size.width + padding : 0,
+      height: parent === -1 ? size.height + padding : 0
+    })
   })
 
 
   const result = layer.export()
+
   const width = result.width - padding
   const height = result.height - padding
-  const properties = { width, height }
   const coordinates = result.items.map(item => {
-    const { x, y } = item
+    const { parent } = item
+    const real = parent === -1 ? item : result.items[parent]
+    const { x, y } = real
+
     return {
       x,
       y,
-      width: item.width - padding,
-      height: item.height - padding
+      width: real.width - padding,
+      height: real.height - padding
     }
   })
 
   const sprite = Images(width, height)
-  result.items.forEach(({ image, x, y }) => sprite.draw(image, x, y))
+  result.items.forEach(({ image, parent, x, y }) => parent === -1 && sprite.draw(image, x, y))
 
   return {
-    image: sprite.encode('png'),
-    coordinates,
-    properties
+    buffer: sprite.encode('png'),
+    width,
+    height,
+    coordinates
   }
 }
