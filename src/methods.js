@@ -39,3 +39,12 @@ export function getGroup(all, tag) {
 export function getSprite(processor, all, group) {
   return processor(group.map(index => all[index].buffer))
 }
+
+export function wrap(fn) {
+  return function (...args) {
+    if (args[0] == null) {
+      return null
+    }
+    return fn.call(null, ...args)
+  }
+}

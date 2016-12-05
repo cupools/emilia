@@ -1,7 +1,7 @@
 import proof from 'proof'
-import _ from './util'
 import sprite from './sprite'
 import lint from './lint'
+import _ from './util'
 
 export default function emilia(opts = {}, content) {
   const options = proof(opts, lint)
@@ -9,15 +9,18 @@ export default function emilia(opts = {}, content) {
   const { algorithm, padding } = options
   const processor = sprite.bind(null, { algorithm, padding })
 
-  const raw = getUrls(content) // => [{ url, decl }, ...]
-  const assignTag = item => ({ ...item, ...detectUrl(item.url) })
-  const assignPath = item => ({ ...item, filepath: resolveUrl(item.url) })
-  const assignBuffer = item => ({ ...item, buffer: getBuffer(item.filepath) })
-  const bundles = raw.map(_.map(assignBuffer, assignPath, assignTag))
+  const raw = getUrls(content)
 
-  const assignGroup = item => ({ ...item, group: getGroup.bind(null, bundles)(item.tag) })
+  const assignTag = item => ({ ...item, ...detectUrl(item.url) })
+  const assignLocate = item => ({ ...item, locate: resolveUrl(item.url) })
+  const assignBuffer = item => ({ ...item, buffer: getBuffer(item.locate) })
+  const prune = item => item.tag && item.locate && item.buffer
+
+  const bundles = raw.map(_.map(assignBuffer, assignLocate, assignTag)).filter(prune)
+
+  const assignGroup = item => ({ ...item, group: getGroup(bundles, item.tag) })
   const assignSprite = item => (
-    { ...item, sprite: getSprite.bind(null, processor, bundles)(item.group) }
+    { ...item, sprite: getSprite(processor, bundles, item.group) }
   )
 
   const result = _.Map(assignSprite, assignGroup)(bundles)
