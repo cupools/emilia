@@ -31,6 +31,10 @@ export default {
     default: methods.getSprite,
     coerce: methods.wrap
   },
+  getContent: {
+    typeOf: 'function',
+    default: methods.getContent
+  },
   publicPath: {
     typeOf: 'string',
     default: '/'

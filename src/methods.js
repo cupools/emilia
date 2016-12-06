@@ -12,7 +12,7 @@ export function detectUrl(raw) {
 }
 
 export function getUrls(content) {
-  let ret = []
+  let urls = []
 
   const root = postcss.parse(content)
   root.walkDecls(/background(-image)?$/, decl => {
@@ -20,10 +20,10 @@ export function getUrls(content) {
     const start = value.indexOf('url(')
     const end = value.indexOf(')')
     const url = value.substring(start + 4, end - 1).replace(/^[\s"']|[\s"']$/, '')
-    ret.push({ url, decl })
+    urls.push({ url, decl })
   })
 
-  return ret
+  return { root, urls }
 }
 
 export function getBuffer(url) {
@@ -38,6 +38,15 @@ export function getGroup(all, tag) {
 
 export function getSprite(processor, all, group) {
   return processor(group.map(index => all[index].buffer))
+}
+
+export function getContent(root, result) {
+  result.forEach(item => {
+    const { decl, tag } = item
+    decl.value = decl.value.replace(/url\(.*?\)/, `url('${tag}.png')`)
+  })
+
+  return root.toString()
 }
 
 export function wrap(fn) {
