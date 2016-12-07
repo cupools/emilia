@@ -1,7 +1,7 @@
 import proof from 'proof'
 import sprite from './sprite'
 import lint from './lint'
-import _ from './util'
+import _ from './utils/util'
 
 export default function emilia(opts = {}, content) {
   const options = proof(opts, lint)
