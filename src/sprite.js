@@ -1,6 +1,7 @@
 /* eslint-disable new-cap */
 import Images from 'images'
 import layout from './utils/layout'
+import cache from './utils/cache'
 
 const INFINITE = 10e9
 Images.setLimit(INFINITE, INFINITE)
@@ -12,6 +13,11 @@ Images.setLimit(INFINITE, INFINITE)
  * @return {Object}         coordinates & size
  */
 export default function process(options, buffers) {
+  const fromCache = cache.get(options, buffers)
+  if (fromCache) {
+    return fromCache
+  }
+
   const { padding, algorithm } = options
   const layer = layout(algorithm)
 
@@ -51,10 +57,10 @@ export default function process(options, buffers) {
   const sprite = Images(width, height)
   result.items.forEach(({ image, parent, x, y }) => parent === -1 && sprite.draw(image, x, y))
 
-  return {
+  return cache.set(options, buffers, {
     buffer: sprite.encode('png'),
     width,
     height,
     coordinates
-  }
+  })
 }
