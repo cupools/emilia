@@ -26,6 +26,11 @@ export default {
     default: methods.getGroup,
     coerce: methods.wrap
   },
+  getID: {
+    typeOf: 'function',
+    default: methods.getID,
+    coerce: methods.wrap
+  },
   getSprite: {
     typeOf: 'function',
     default: methods.getSprite,
@@ -37,7 +42,7 @@ export default {
   },
   publicPath: {
     typeOf: 'string',
-    default: '/'
+    default: ''
   },
   algorithm: {
     oneOf: ['binary-tree', 'top-down', 'left-right', 'diagonal', 'alt-diagonal'],

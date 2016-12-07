@@ -12,9 +12,9 @@ export function detectUrl(raw) {
 }
 
 export function getUrls(content) {
+  const root = postcss.parse(content)
   let urls = []
 
-  const root = postcss.parse(content)
   root.walkDecls(/background(-image)?$/, decl => {
     const { value } = decl
     const start = value.indexOf('url(')
@@ -30,6 +30,10 @@ export function getBuffer(url) {
   return fs.readFileSync(url)
 }
 
+export function getID(all, item) {
+  return all.indexOf(item)
+}
+
 export function getGroup(all, tag) {
   return all
     .filter(item => item.tag === tag)
@@ -40,10 +44,26 @@ export function getSprite(processor, all, group) {
   return processor(group.map(index => all[index].buffer))
 }
 
-export function getContent(root, result) {
+export function getContent({ publicPath }, root, result) {
+  const exe = '.png'
   result.forEach(item => {
-    const { decl, tag } = item
-    decl.value = decl.value.replace(/url\(.*?\)/, `url('${tag}.png')`)
+    const { decl, tag, sprite, id } = item
+    const url = publicPath + tag + exe
+    const coor = sprite.coordinates[id]
+    const size = sprite.width + 'px ' + sprite.height + 'px'
+    const position = coor.x + 'px ' + coor.y + 'px'
+
+    const parent = decl.parent
+    decl.value = decl.value.replace(/url\(.*?\)/, `url('${url}')`)
+    parent.walkDecls(/background-(size|position)/, d => d.remove())
+    parent.insertAfter(decl, {
+      prop: 'background-position',
+      value: position
+    })
+    parent.insertAfter(decl, {
+      prop: 'background-size',
+      value: size
+    })
   })
 
   return root.toString()
