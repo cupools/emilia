@@ -3,7 +3,7 @@ import sprite from './sprite'
 import lint from './lint'
 import _ from './utils/util'
 
-export default function emilia(opts = {}, content) {
+export default function emilia(opts, content) {
   const options = proof(opts, lint)
   const { resolveUrl, detectUrl, getBuffer, getUrls } = options
 

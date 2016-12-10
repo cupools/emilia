@@ -19,7 +19,7 @@ export function getUrls(content) {
     const { value } = decl
     const start = value.indexOf('url(')
     const end = value.indexOf(')')
-    const url = value.substring(start + 4, end - 1).replace(/^[\s"']|[\s"']$/, '')
+    const url = value.substring(start + 4, end).replace(/^[\s"']|[\s"']$/g, '')
     urls.push({ url, decl })
   })
 
@@ -36,8 +36,8 @@ export function getID(all, item) {
 
 export function getGroup(all, tag) {
   return all
-    .filter(item => item.tag === tag)
-    .map((_, index) => index)
+    .map((item, index) => (item.tag === tag ? index : -1))
+    .filter(item => item > -1)
 }
 
 export function getSprite(processor, all, group) {
