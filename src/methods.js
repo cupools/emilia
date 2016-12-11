@@ -51,10 +51,11 @@ export function getContent({ publicPath }, root, result) {
     const url = publicPath + tag + exe
     const coor = sprite.coordinates[id]
     const size = sprite.width + 'px ' + sprite.height + 'px'
-    const position = coor.x + 'px ' + coor.y + 'px'
+    const position = (0 - coor.x) + 'px ' + (0 - coor.y) + 'px'
 
     const parent = decl.parent
     decl.value = decl.value.replace(/url\(.*?\)/, `url('${url}')`)
+
     parent.walkDecls(/background-(size|position)/, d => d.remove())
     parent.insertAfter(decl, {
       prop: 'background-position',
