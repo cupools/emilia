@@ -16,7 +16,7 @@ export default function emilia(opts, content) {
 
   const bundles = urls.map(_.map(assignBuffer, assignLocate, assignTag)).filter(prune)
 
-  const { getID, getGroup, getSprite, getContent } = options
+  const { getID, getGroup, getSprite, getContent, getSpriteResult } = options
   const { algorithm, padding } = options
   const processor = sprite.bind(null, { algorithm, padding })
 
@@ -25,11 +25,13 @@ export default function emilia(opts, content) {
   const assignSprite = item => _.assign(item, { sprite: getSprite(processor, bundles, item.group) })
 
   const { publicPath } = options
-  const result = _.maps(assignSprite, assignGroup, assignID)(bundles)
-  const ret = getContent({ publicPath }, root, result)
+  const items = _.maps(assignSprite, assignGroup, assignID)(bundles)
+  const ret = getContent({ publicPath }, root, items)
+  const sprites = getSpriteResult(items)
 
   return {
     content: ret,
-    items: result
+    sprites,
+    items
   }
 }

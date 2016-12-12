@@ -70,6 +70,16 @@ export function getContent({ publicPath }, root, result) {
   return root.toString()
 }
 
+export function getSpriteResult(all) {
+  const valid = all.map(item => {
+    const { id, group, sprite, tag } = item
+    return group.indexOf(id) === 0
+      ? { [tag]: sprite.buffer }
+      : {}
+  })
+  return valid.reduce((ret, item) => Object.assign({}, ret, item))
+}
+
 export function wrap(fn) {
   return function (...args) {
     if (args[0] == null) {

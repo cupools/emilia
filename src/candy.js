@@ -22,19 +22,17 @@ const lints = {
 
 export default function candy(opts) {
   const { src, dest, output, ...options } = proof(opts, lints)
-  const { content, items } = emilia(options, fs.readFileSync(src, 'utf8'))
+  const { content, sprites } = emilia(options, fs.readFileSync(src, 'utf8'))
 
   writeFile(content, 'utf8', dest)
-  items.forEach(item => {
-    const { id, group, sprite, tag } = item
-    if (group.indexOf(id) === 0) {
-      writeFile(sprite.buffer, 'base64', output, tag + '.png')
-    }
+  Object.keys(sprites).forEach(tag => {
+    const buffer = sprites[tag]
+    writeFile(buffer, 'base64', output, tag + '.png')
   })
 
   return {
     content,
-    items
+    sprites
   }
 }
 

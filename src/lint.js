@@ -40,6 +40,10 @@ export default {
     typeOf: 'function',
     default: methods.getContent
   },
+  getSpriteResult: {
+    typeOf: 'function',
+    default: methods.getSpriteResult
+  },
   publicPath: {
     typeOf: 'string',
     default: ''
