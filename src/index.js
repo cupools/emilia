@@ -1,10 +1,10 @@
-import proof from 'proof'
+import checkin from 'checkin'
 import sprite from './sprite'
 import lint from './lint'
 import _ from './utils/util'
 
 export default function emilia(opts, content) {
-  const options = proof(opts, lint)
+  const options = checkin(opts, lint)
   const { resolveUrl, detectUrl, getBuffer, getUrls } = options
 
   const { root, urls } = getUrls(content)

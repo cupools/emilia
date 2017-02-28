@@ -15,12 +15,12 @@
   "license": "MIT",
   "dependencies": {
     "babel-runtime": "^6.11.6",
+    "checkin": "0.0.1",
     "images": "^3.0.0",
     "layout": "^2.2.0",
     "lodash.sortby": "^4.7.0",
     "mkdirp": "^0.5.1",
-    "postcss": "^5.1.2",
-    "proof": "github:cupools/proof"
+    "postcss": "^5.1.2"
   },
   "devDependencies": {
     "assert": "^1.4.1",

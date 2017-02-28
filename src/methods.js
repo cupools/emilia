@@ -45,10 +45,10 @@ export function getSprite(processor, all, group) {
 }
 
 export function getContent({ publicPath }, root, result) {
-  const exe = '.png'
+  const extname = '.png'
   result.forEach(item => {
     const { decl, tag, sprite, id } = item
-    const url = publicPath + tag + exe
+    const url = publicPath + tag + extname
     const coor = sprite.coordinates[id]
     const size = sprite.width + 'px ' + sprite.height + 'px'
     const position = (0 - coor.x) + 'px ' + (0 - coor.y) + 'px'
